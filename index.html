@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ice Cream Survival — Suivi d'aventure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="bg-scene" aria-hidden="true">
+  <div class="drip drip-a"></div>
+  <div class="drip drip-b"></div>
+  <div class="drip drip-c"></div>
+</div>
+
+<header class="hero">
+  <div class="hero-top">
+    <div class="hero-title">
+      <span class="hero-cone" aria-hidden="true">🍦</span>
+      <div>
+        <h1>Ice Cream Survival</h1>
+        <p class="hero-sub">Journal de bord de l'aventure — Le Refuge Émeraudien</p>
+      </div>
+    </div>
+    <button id="unlockBtn" class="btn btn-ghost">
+      <span id="unlockIcon">🔒</span> <span id="unlockLabel">Mode édition</span>
+    </button>
+  </div>
+
+  <div class="overall-progress" id="overallProgress">
+    <div class="overall-progress-labels">
+      <span class="overall-progress-title">Toutes les quêtes</span>
+      <span class="overall-progress-count" id="overallCount">0 / 0 scoops</span>
+    </div>
+    <div class="scoopbar scoopbar-lg scoopbar-rainbow" id="overallBar">
+      <div class="scoopbar-track">
+        <div class="scoopbar-fill" id="overallFill" style="width:0%"></div>
+      </div>
+      <div class="scoop-marker" id="overallMarker">🍨</div>
+    </div>
+  </div>
+</header>
+
+<main id="categories" class="categories">
+  <!-- injecté par app.js -->
+</main>
+
+<div class="add-category-row" id="addCategoryRow" hidden>
+  <button class="btn btn-dashed" id="addCategoryBtn">＋ Nouvelle catégorie</button>
+</div>
+
+<footer class="site-footer">
+  <p>Fait avec 🍧 pour l'aventure — <span id="statsFooter"></span></p>
+</footer>
+
+<!-- Modal générique (login / texte / confirmation) -->
+<div class="modal-overlay" id="modalOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <h2 id="modalTitle">Titre</h2>
+    <p id="modalDesc" class="modal-desc" hidden></p>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modalCancel">Annuler</button>
+      <button class="btn btn-primary" id="modalConfirm">OK</button>
+    </div>
+    <p class="modal-error" id="modalError" hidden></p>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
