@@ -416,6 +416,10 @@ button { font-family: var(--font-body); cursor: pointer; }
   z-index: 100;
   padding: 20px;
 }
+/* Sans cette règle, [hidden] et "display: flex" ci-dessus ont la même
+   spécificité CSS : la règle "flex" (définie après la feuille de style du
+   navigateur) l'emporte et la popup reste visible même avec hidden="true". */
+.modal-overlay[hidden] { display: none; }
 .modal {
   background: var(--cream);
   border-radius: var(--radius-lg);

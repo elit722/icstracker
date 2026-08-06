@@ -3,7 +3,7 @@
 
   // ⚠️ Remplace cette URL par celle de ton Worker Cloudflare une fois déployé,
   // ex: "https://ice-cream-survival.ton-compte.workers.dev"
-  const WORKER_URL = "https://icstracker.refugeemeraudien-direction.workers.dev";
+  const WORKER_URL = "https://ice-cream-survival.TON-SOUS-DOMAINE.workers.dev";
   const API = `${WORKER_URL}/api`;
   const TOKEN_KEY = "ics_token";
 
