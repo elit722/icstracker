@@ -67,18 +67,6 @@
 <main id="pages">
 
   <section id="page-accueil" class="page-section page-accueil is-active" data-page="accueil">
-    <div class="grid-cols-row" id="gridColumnsRow" hidden>
-      <label for="gridColumnsSelect" class="grid-cols-label">🔢 Fiches par ligne</label>
-      <select id="gridColumnsSelect" class="grid-cols-select">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-      </select>
-    </div>
-
     <div id="categories" class="categories">
       <!-- injecté par app.js -->
     </div>
@@ -101,6 +89,19 @@
       <h2>🧑‍🤝‍🧑 Les Participants</h2>
       <div class="section-actions" id="participantsEditActions"></div>
     </div>
+
+    <div class="grid-cols-row" id="gridColumnsRow" hidden>
+      <label for="gridColumnsSelect" class="grid-cols-label">🔢 Fiches par ligne</label>
+      <select id="gridColumnsSelect" class="grid-cols-select">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+      </select>
+    </div>
+
     <div id="participantsGrid" class="participants-grid"></div>
   </section>
 

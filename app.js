@@ -13,6 +13,9 @@
 
   let state = { categories: [], twitch: { hostChannel: "" }, mapDownloadUrl: "", participants: [], cardsCols: 3 };
   let openSubs = new Set(JSON.parse(localStorage.getItem("ics_open_subs") || "[]"));
+  // Statut live/hors-ligne des chaînes Twitch, tenu à jour via /api/twitch/status.
+  // Clé = nom de chaîne en minuscules → { live: bool, offlineBanner: string|null }
+  let twitchStatus = {};
 
   const els = {
     categories: document.getElementById("categories"),
@@ -782,6 +785,45 @@
     return `https://player.twitch.tv/?channel=${encodeURIComponent(channel)}&${parentParams}&muted=true&autoplay=${autoplay}`;
   }
 
+  // Récupère le statut live/hors-ligne (+ bannière) des chaînes données auprès du Worker,
+  // puis rafraîchit uniquement les sections concernées (pas de rechargement complet des données).
+  async function refreshTwitchStatus(channels) {
+    const uniq = [...new Set((channels || []).filter(Boolean).map((c) => c.toLowerCase()))];
+    if (uniq.length === 0) return;
+    try {
+      const res = await fetch(`${API}/twitch/status?channels=${encodeURIComponent(uniq.join(","))}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      twitchStatus = { ...twitchStatus, ...data };
+      renderTwitchSection();
+      renderParticipantsSection();
+    } catch (e) {
+      // Silencieux : en cas d'échec (API indisponible, secrets Twitch non configurés…)
+      // on retombe simplement sur l'affichage du lecteur en direct par défaut.
+    }
+  }
+
+  function allTwitchChannels() {
+    const list = [(state.twitch && state.twitch.hostChannel) || ""];
+    (state.participants || []).forEach((p) => list.push(p.twitchChannel || ""));
+    return list.filter(Boolean);
+  }
+
+  // Construit le bloc HTML d'une intégration Twitch : lecteur en direct si la chaîne
+  // est live, sinon bannière de la chaîne (récupérée via Twitch) si on la connaît,
+  // sinon un simple encart "hors ligne".
+  function twitchEmbedBlock(channel, { small = false } = {}) {
+    const status = twitchStatus[channel.toLowerCase()];
+    const wrapClass = "twitch-embed-wrap" + (small ? " twitch-embed-wrap-sm" : "");
+    if (status && status.live === false) {
+      const banner = status.offlineBanner
+        ? `<img class="twitch-offline-banner" src="${escapeHtml(status.offlineBanner)}" alt="" onerror="this.remove()" />`
+        : `<div class="twitch-offline-fallback">Actuellement hors ligne</div>`;
+      return `<div class="${wrapClass}">${banner}<span class="twitch-offline-badge">Hors ligne</span></div>`;
+    }
+    return `<div class="${wrapClass}"><iframe src="${twitchEmbedUrl(channel)}" allowfullscreen scrolling="no"></iframe></div>`;
+  }
+
   function renderTwitchSection() {
     const channel = (state.twitch && state.twitch.hostChannel) || "";
     els.twitchEditActions.innerHTML = "";
@@ -796,6 +838,7 @@
           onConfirm: async (v) => {
             state = await apiCall("/settings", { method: "PUT", body: JSON.stringify({ twitchHostChannel: v }) });
             render();
+            refreshTwitchStatus(allTwitchChannels());
             toast("Chaîne Twitch mise à jour.");
           },
         });
@@ -808,9 +851,7 @@
     }
 
     els.twitchBody.innerHTML = `
-      <div class="twitch-embed-wrap">
-        <iframe src="${twitchEmbedUrl(channel)}" allowfullscreen scrolling="no"></iframe>
-      </div>
+      ${twitchEmbedBlock(channel)}
       <a class="btn btn-primary twitch-visit-btn" href="https://www.twitch.tv/${encodeURIComponent(channel)}" target="_blank" rel="noopener">▶️ Voir sur Twitch</a>
     `;
   }
@@ -829,6 +870,7 @@
           onConfirm: async (data) => {
             state = await apiCall("/participants", { method: "POST", body: JSON.stringify(data) });
             render();
+            refreshTwitchStatus(allTwitchChannels());
             toast("Participant ajouté.");
           },
         });
@@ -874,10 +916,9 @@
     }
 
     if (p.twitchChannel) {
-      const embedWrap = document.createElement("div");
-      embedWrap.className = "twitch-embed-wrap twitch-embed-wrap-sm";
-      embedWrap.innerHTML = `<iframe src="${twitchEmbedUrl(p.twitchChannel)}" allowfullscreen scrolling="no"></iframe>`;
-      card.appendChild(embedWrap);
+      const embedHolder = document.createElement("div");
+      embedHolder.innerHTML = twitchEmbedBlock(p.twitchChannel, { small: true });
+      card.appendChild(embedHolder.firstElementChild);
 
       const visit = document.createElement("a");
       visit.href = `https://www.twitch.tv/${encodeURIComponent(p.twitchChannel)}`;
@@ -898,6 +939,7 @@
           onConfirm: async (data) => {
             state = await apiCall(`/participants/${p.id}`, { method: "PUT", body: JSON.stringify(data) });
             render();
+            refreshTwitchStatus(allTwitchChannels());
           },
         });
       }));
@@ -1779,6 +1821,7 @@
       state.socials = state.socials || [];
       state.cardsCols = Number(state.cardsCols) || 3;
       render();
+      refreshTwitchStatus(allTwitchChannels());
       showPage(location.hash.slice(1) || "accueil", { updateHash: false });
     } catch (e) {
       els.categories.innerHTML = `<p class="empty-note">${escapeHtml(e.message)}</p>`;
