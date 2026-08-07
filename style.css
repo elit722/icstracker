@@ -201,18 +201,17 @@ button { font-family: var(--font-body); cursor: pointer; }
 .scoopbar-fill {
   height: 100%;
   border-radius: 999px;
-  background-image:
-    radial-gradient(circle, rgba(255,255,255,0.55) 1.5px, transparent 1.6px),
-    linear-gradient(90deg, var(--flavor, var(--blueberry)), var(--flavor-dark, var(--blueberry-dark)));
-  background-size: 10px 10px, 100% 100%;
+  background-image: linear-gradient(90deg, var(--flavor, var(--blueberry)), var(--flavor-dark, var(--blueberry-dark)));
+  background-size: 100% 100%;
   transition: width 0.5s cubic-bezier(.2,.8,.2,1);
   min-width: 0;
 }
 .scoopbar-rainbow .scoopbar-fill {
-  background-image:
-    radial-gradient(circle, rgba(255,255,255,0.55) 1.5px, transparent 1.6px),
-    linear-gradient(90deg, var(--blueberry), var(--pistachio) 38%, var(--lemon) 68%, var(--cherry));
-  background-size: 10px 10px, 100% 100%;
+  width: 100%;
+  background-image: linear-gradient(90deg, var(--blueberry), var(--pistachio) 38%, var(--lemon) 68%, var(--cherry));
+  background-size: 100% 100%;
+  clip-path: inset(0 var(--reveal, 100%) 0 0);
+  transition: clip-path 0.5s cubic-bezier(.2,.8,.2,1);
 }
 .scoop-marker {
   position: absolute;
@@ -523,6 +522,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   .scoopbar-fill { transition: none; }
+  .scoopbar-rainbow .scoopbar-fill { transition: none; }
 }
 
 /* ---------- Focus visibility ---------- */

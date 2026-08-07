@@ -364,7 +364,7 @@
   function render() {
     const { done, total } = overallStats();
     const p = pct(done, total);
-    els.overallFill.style.width = `${p}%`;
+    els.overallFill.style.setProperty("--reveal", `${100 - p}%`);
     els.overallCount.textContent = `${done} / ${total} scoops`;
     els.overallMarker.style.left = `calc(${p}% - 12px)`;
     els.statsFooter.textContent = total > 0 ? `${p}% de l'aventure complétée` : "";
