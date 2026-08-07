@@ -35,8 +35,6 @@
     burgerMenu: document.getElementById("burgerMenu"),
     mapDownloadLink: document.getElementById("mapDownloadLink"),
     mapEditBtn: document.getElementById("mapEditBtn"),
-    twitchBody: document.getElementById("twitchBody"),
-    twitchEditActions: document.getElementById("twitchEditActions"),
     participantsGrid: document.getElementById("participantsGrid"),
     participantsEditActions: document.getElementById("participantsEditActions"),
     statsTableWrap: document.getElementById("statsTableWrap"),
@@ -768,7 +766,6 @@
       els.categories.innerHTML = `<p class="empty-note">Aucune catégorie pour l'instant.</p>`;
     }
     state.categories.forEach((cat) => els.categories.appendChild(renderCategory(cat)));
-    renderTwitchSection();
     renderParticipantsSection();
     renderStatsSection();
     renderThanksSection();
@@ -817,7 +814,7 @@
   }
 
   function allTwitchChannels() {
-    const list = [(state.twitch && state.twitch.hostChannel) || ""];
+    const list = [];
     (state.participants || []).forEach((p) => list.push(p.twitchChannel || ""));
     return list.filter(Boolean);
   }
@@ -843,38 +840,6 @@
     }
 
     return `<div class="${wrapClass}"><iframe src="${twitchEmbedUrl(channel)}" allowfullscreen scrolling="no"></iframe></div>`;
-  }
-
-  function renderTwitchSection() {
-    const channel = (state.twitch && state.twitch.hostChannel) || "";
-    els.twitchEditActions.innerHTML = "";
-    if (isEditMode()) {
-      els.twitchEditActions.appendChild(iconButton("✏️", "Modifier la chaîne Twitch", () => {
-        openTextModal({
-          title: "Chaîne Twitch de l'hôte",
-          desc: "Le nom d'utilisateur Twitch (ex: rexi), sans l'URL complète.",
-          value: channel,
-          placeholder: "nom_de_la_chaine",
-          confirmLabel: "Enregistrer",
-          onConfirm: async (v) => {
-            state = await apiCall("/settings", { method: "PUT", body: JSON.stringify({ twitchHostChannel: v }) });
-            render();
-            refreshTwitchStatus(allTwitchChannels());
-            toast("Chaîne Twitch mise à jour.");
-          },
-        });
-      }));
-    }
-
-    if (!channel) {
-      els.twitchBody.innerHTML = `<p class="empty-note">${isEditMode() ? "Ajoute la chaîne Twitch de l'hôte avec le crayon ci-dessus." : "Le stream n'est pas encore configuré."}</p>`;
-      return;
-    }
-
-    els.twitchBody.innerHTML = `
-      ${twitchEmbedBlock(channel)}
-      <a class="btn btn-primary twitch-visit-btn" href="https://www.twitch.tv/${encodeURIComponent(channel)}" target="_blank" rel="noopener">▶️ Voir sur Twitch</a>
-    `;
   }
 
   // ---------------- Participants ----------------
@@ -1733,7 +1698,7 @@
 
   // ---------------- Navigation entre pages ----------------
 
-  const PAGE_IDS = ["accueil", "twitch", "participants", "stats", "remerciements", "partenaires"];
+  const PAGE_IDS = ["accueil", "participants", "stats", "remerciements", "partenaires"];
 
   function currentPageId() {
     const hash = location.hash.slice(1);
@@ -1834,7 +1799,6 @@
   async function init() {
     try {
       state = await apiGet();
-      state.twitch = state.twitch || { hostChannel: "" };
       state.participants = state.participants || [];
       state.mapDownloadUrl = state.mapDownloadUrl || "";
       state.thanks = state.thanks || [];
