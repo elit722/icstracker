@@ -29,6 +29,12 @@
     { key: "cherry", label: "Cerise" },
     { key: "pistachio", label: "Pistache" },
     { key: "lemon", label: "Citron" },
+    { key: "mint", label: "Menthe" },
+    { key: "chocolate", label: "Chocolat" },
+    { key: "strawberry", label: "Fraise" },
+    { key: "caramel", label: "Caramel" },
+    { key: "grape", label: "Raisin" },
+    { key: "coconut", label: "Coco" },
   ];
 
   // ---------------- Auth helpers ----------------
@@ -195,6 +201,45 @@
     modal.confirm.onclick = submit;
   }
 
+  // Construit une rangée de pastilles de couleur dans `container`.
+  // Si allowAuto est vrai, une pastille "auto" (arc-en-ciel) est ajoutée en premier
+  // pour représenter "pas de couleur propre -> hérite de la catégorie" (color = null).
+  // Retourne une fonction getSelected() qui renvoie la clé de couleur choisie (ou null pour auto).
+  function buildFlavorRow(container, selected, { allowAuto = false } = {}) {
+    let selectedColor = selected || (allowAuto ? null : FLAVORS[0].key);
+    const swatches = [];
+
+    if (allowAuto) {
+      const auto = document.createElement("div");
+      auto.className = "modal-flavor-swatch swatch-auto" + (selectedColor === null ? " selected" : "");
+      auto.title = "Automatique (couleur de la catégorie)";
+      auto.textContent = "🍨";
+      auto.addEventListener("click", () => {
+        selectedColor = null;
+        swatches.forEach((s) => s.el.classList.remove("selected"));
+        auto.classList.add("selected");
+      });
+      container.appendChild(auto);
+      swatches.push({ key: null, el: auto });
+    }
+
+    FLAVORS.forEach((f) => {
+      const sw = document.createElement("div");
+      sw.className = "modal-flavor-swatch" + (f.key === selectedColor ? " selected" : "");
+      sw.style.background = `var(--${f.key})`;
+      sw.title = f.label;
+      sw.addEventListener("click", () => {
+        selectedColor = f.key;
+        swatches.forEach((s) => s.el.classList.remove("selected"));
+        sw.classList.add("selected");
+      });
+      container.appendChild(sw);
+      swatches.push({ key: f.key, el: sw });
+    });
+
+    return () => selectedColor;
+  }
+
   function openCategoryModal({ title, name = "", icon = "🍨", color = "blueberry", onConfirm }) {
     modal.title.textContent = title;
     modal.desc.hidden = true;
@@ -211,20 +256,8 @@
     const iconInput = document.getElementById("modalIcon");
     input.value = name;
     iconInput.value = icon;
-    let selectedColor = color;
     const flavorRow = document.getElementById("flavorRow");
-    FLAVORS.forEach((f) => {
-      const sw = document.createElement("div");
-      sw.className = "modal-flavor-swatch" + (f.key === selectedColor ? " selected" : "");
-      sw.style.background = `var(--${f.key})`;
-      sw.title = f.label;
-      sw.addEventListener("click", () => {
-        selectedColor = f.key;
-        [...flavorRow.children].forEach((c) => c.classList.remove("selected"));
-        sw.classList.add("selected");
-      });
-      flavorRow.appendChild(sw);
-    });
+    const getSelected = buildFlavorRow(flavorRow, color, { allowAuto: false });
     setTimeout(() => input.focus(), 30);
 
     const submit = async () => {
@@ -232,7 +265,7 @@
       if (!v) { showModalError("Le nom est requis."); return; }
       try {
         modal.confirm.disabled = true;
-        await onConfirm({ name: v, icon: iconInput.value.trim() || "🍨", color: selectedColor });
+        await onConfirm({ name: v, icon: iconInput.value.trim() || "🍨", color: getSelected() });
         closeModal();
       } catch (e) {
         showModalError(e.message);
@@ -241,6 +274,40 @@
       }
     };
     modal.confirm.onclick = submit;
+  }
+
+  function openQuestModal({ title, name = "", color = null, confirmLabel = "Valider", onConfirm }) {
+    modal.title.textContent = title;
+    modal.desc.hidden = true;
+    modal.body.innerHTML = `
+      <input type="text" id="modalInput" placeholder="Nom de la quête" autocomplete="off" />
+      <div class="modal-flavor-row" id="flavorRow"></div>
+    `;
+    modal.confirm.textContent = confirmLabel;
+    modal.error.hidden = true;
+    modal.overlay.hidden = false;
+
+    const input = document.getElementById("modalInput");
+    input.value = name;
+    const flavorRow = document.getElementById("flavorRow");
+    const getSelected = buildFlavorRow(flavorRow, color, { allowAuto: true });
+    setTimeout(() => input.focus(), 30);
+
+    const submit = async () => {
+      const v = input.value.trim();
+      if (!v) { showModalError("Le nom est requis."); return; }
+      try {
+        modal.confirm.disabled = true;
+        await onConfirm({ name: v, color: getSelected() });
+        closeModal();
+      } catch (e) {
+        showModalError(e.message);
+      } finally {
+        modal.confirm.disabled = false;
+      }
+    };
+    modal.confirm.onclick = submit;
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
   }
 
   function showModalError(msg) {
@@ -369,12 +436,11 @@
       addBtn.className = "add-quest-card";
       addBtn.textContent = "＋ Nouvelle quête";
       addBtn.addEventListener("click", () => {
-        openTextModal({
+        openQuestModal({
           title: "Nouvelle quête",
-          placeholder: "Nom de la quête",
           confirmLabel: "Ajouter",
-          onConfirm: async (name) => {
-            state = await apiCall(`/categories/${cat.id}/quests`, { method: "POST", body: JSON.stringify({ name }) });
+          onConfirm: async ({ name, color }) => {
+            state = await apiCall(`/categories/${cat.id}/quests`, { method: "POST", body: JSON.stringify({ name, color }) });
             render();
           },
         });
@@ -393,6 +459,11 @@
     const stats = questLeafStats(quest);
     const complete = quest.subs.length > 0 ? stats.done === stats.total && stats.total > 0 : quest.completed;
     card.className = "quest-card" + (complete ? " is-complete" : "");
+    if (quest.color) {
+      card.style.setProperty("--flavor", `var(--${quest.color})`);
+      card.style.setProperty("--flavor-dark", `var(--${quest.color}-dark)`);
+      card.style.setProperty("--flavor-tint", `var(--${quest.color}-tint)`);
+    }
 
     const head = document.createElement("div");
     head.className = "quest-head";
@@ -449,12 +520,13 @@
       const actions = document.createElement("div");
       actions.className = "quest-edit-actions";
       actions.appendChild(iconButton("✏️", "Renommer", () => {
-        openTextModal({
-          title: "Renommer la quête",
-          value: quest.name,
+        openQuestModal({
+          title: "Modifier la quête",
+          name: quest.name,
+          color: quest.color || null,
           confirmLabel: "Enregistrer",
-          onConfirm: async (name) => {
-            state = await apiCall(`/quests/${quest.id}`, { method: "PUT", body: JSON.stringify({ name }) });
+          onConfirm: async ({ name, color }) => {
+            state = await apiCall(`/quests/${quest.id}`, { method: "PUT", body: JSON.stringify({ name, color }) });
             render();
           },
         });

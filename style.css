@@ -27,6 +27,30 @@
   --lemon-dark: #cf9c12;
   --lemon-tint: #fff6dc;
 
+  --mint: #2fcf9a;
+  --mint-dark: #1f9d78;
+  --mint-tint: #e0faf1;
+
+  --chocolate: #8a5a3b;
+  --chocolate-dark: #6b4025;
+  --chocolate-tint: #f1e4d9;
+
+  --strawberry: #ff6f91;
+  --strawberry-dark: #d94670;
+  --strawberry-tint: #ffe4ec;
+
+  --caramel: #e2933f;
+  --caramel-dark: #b56c1f;
+  --caramel-tint: #fcebd6;
+
+  --grape: #9b5de5;
+  --grape-dark: #7c3aed;
+  --grape-tint: #f1e6fd;
+
+  --coconut: #6fb3c9;
+  --coconut-dark: #3f8aa1;
+  --coconut-tint: #e6f5f9;
+
   --radius-lg: 26px;
   --radius-md: 18px;
   --radius-sm: 12px;
@@ -220,6 +244,12 @@ button { font-family: var(--font-body); cursor: pointer; }
 .category.flavor-pistachio  { --flavor: var(--pistachio);  --flavor-dark: var(--pistachio-dark);  --flavor-tint: var(--pistachio-tint); }
 .category.flavor-lemon      { --flavor: var(--lemon);      --flavor-dark: var(--lemon-dark);      --flavor-tint: var(--lemon-tint); }
 .category.flavor-blueberry  { --flavor: var(--blueberry);  --flavor-dark: var(--blueberry-dark);  --flavor-tint: var(--blueberry-tint); }
+.category.flavor-mint       { --flavor: var(--mint);       --flavor-dark: var(--mint-dark);       --flavor-tint: var(--mint-tint); }
+.category.flavor-chocolate  { --flavor: var(--chocolate);  --flavor-dark: var(--chocolate-dark);  --flavor-tint: var(--chocolate-tint); }
+.category.flavor-strawberry { --flavor: var(--strawberry); --flavor-dark: var(--strawberry-dark); --flavor-tint: var(--strawberry-tint); }
+.category.flavor-caramel    { --flavor: var(--caramel);    --flavor-dark: var(--caramel-dark);    --flavor-tint: var(--caramel-tint); }
+.category.flavor-grape      { --flavor: var(--grape);      --flavor-dark: var(--grape-dark);      --flavor-tint: var(--grape-tint); }
+.category.flavor-coconut    { --flavor: var(--coconut);    --flavor-dark: var(--coconut-dark);    --flavor-tint: var(--coconut-tint); }
 
 .category-head {
   display: flex;
@@ -457,6 +487,13 @@ button { font-family: var(--font-body); cursor: pointer; }
   cursor: pointer;
 }
 .modal-flavor-swatch.selected { border-color: var(--ink); }
+.modal-flavor-swatch.swatch-auto {
+  background: conic-gradient(var(--blueberry), var(--pistachio), var(--lemon), var(--cherry), var(--blueberry));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
 
 /* ---------- Toast ---------- */
 .toast {
