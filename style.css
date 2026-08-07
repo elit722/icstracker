@@ -771,6 +771,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   overflow: hidden;
   box-shadow: var(--shadow-card);
 }
+.stats-table-secondary { margin-top: 20px; }
 .stats-table th, .stats-table td { padding: 12px 14px; text-align: left; font-size: 13.5px; }
 .stats-table th {
   background: var(--blueberry-tint);

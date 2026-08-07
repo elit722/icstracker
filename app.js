@@ -834,33 +834,94 @@
 
   // ---------------- Statistiques ----------------
 
+  // Formatte une distance de chute en blocs (arrondie, avec séparateur de milliers).
+  function formatFallDistance(v) {
+    const n = Number(v) || 0;
+    return `${Math.round(n).toLocaleString("fr-FR")} blocs`;
+  }
+
+  // Formatte le temps écoulé depuis un timestamp (ms epoch ou chaîne de date ISO)
+  // sous une forme lisible du type "3j 4h" / "2h 15min" / "à l'instant".
+  function formatElapsedSince(ts) {
+    if (!ts) return "—";
+    const then = new Date(ts).getTime();
+    if (!Number.isFinite(then)) return "—";
+    const diffMs = Date.now() - then;
+    if (diffMs < 0) return "—";
+    const minutes = Math.floor(diffMs / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    if (days > 0) return `${days}j ${hours % 24}h`;
+    if (hours > 0) return `${hours}h ${minutes % 60}min`;
+    if (minutes > 0) return `${minutes}min`;
+    return "à l'instant";
+  }
+
   function renderStatsSection() {
     const list = state.participants || [];
     if (list.length === 0) {
       els.statsTableWrap.innerHTML = `<p class="empty-note">Pas encore de statistiques.</p>`;
       return;
     }
-    const rows = list.map((p) => {
+
+    const nameCell = (p) => `
+      <td class="stats-name-cell">
+        ${p.avatar ? `<img class="stats-avatar" src="${escapeHtml(p.avatar)}" alt="" onerror="this.style.visibility='hidden'" />` : ""}
+        ${escapeHtml(p.name)}
+      </td>
+    `;
+
+    // Tableau 1 : activité de construction
+    const activityRows = list.map((p) => {
       const s = p.stats || {};
       return `
         <tr>
-          <td class="stats-name-cell">
-            ${p.avatar ? `<img class="stats-avatar" src="${escapeHtml(p.avatar)}" alt="" onerror="this.style.visibility='hidden'" />` : ""}
-            ${escapeHtml(p.name)}
-          </td>
+          ${nameCell(p)}
           <td>${s.blocksPlaced || 0}</td>
-          <td>${s.kills || 0}</td>
           <td>${s.blocksWalked || 0}</td>
           <td>${s.blocksBroken || 0}</td>
         </tr>
       `;
     }).join("");
+
+    // Tableau 2 : combat, morts et chutes
+    const deathRows = list.map((p) => {
+      const s = p.stats || {};
+      const deaths = s.deaths || 0;
+      return `
+        <tr>
+          ${nameCell(p)}
+          <td>${s.kills || 0}</td>
+          <td>${deaths}</td>
+          <td>${formatFallDistance(s.fallDistance)}</td>
+          <td>${deaths > 0 ? formatElapsedSince(s.lastDeathAt) : "Jamais"}</td>
+        </tr>
+      `;
+    }).join("");
+
     els.statsTableWrap.innerHTML = `
       <table class="stats-table">
         <thead>
-          <tr><th>Joueur</th><th>Blocs posés</th><th>Kills</th><th>Blocs parcourus</th><th>Blocs cassés</th></tr>
+          <tr>
+            <th>Joueur</th>
+            <th>Blocs posés</th>
+            <th>Blocs parcourus</th>
+            <th>Blocs cassés</th>
+          </tr>
         </thead>
-        <tbody>${rows}</tbody>
+        <tbody>${activityRows}</tbody>
+      </table>
+      <table class="stats-table stats-table-secondary">
+        <thead>
+          <tr>
+            <th>Joueur</th>
+            <th>Kills</th>
+            <th>☠️ Morts</th>
+            <th>Distance de chute</th>
+            <th>Dernière mort</th>
+          </tr>
+        </thead>
+        <tbody>${deathRows}</tbody>
       </table>
     `;
   }
