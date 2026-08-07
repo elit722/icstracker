@@ -7,7 +7,11 @@
   const API = `${WORKER_URL}/api`;
   const TOKEN_KEY = "ics_token";
 
-  let state = { categories: [] };
+  // ⚠️ Domaine(s) sur lesquels le site est servi — requis par les iframes Twitch
+  // (paramètre "parent" obligatoire). Ajoute chaque domaine que tu utilises.
+  const EMBED_PARENTS = ["elit722.github.io", "localhost"];
+
+  let state = { categories: [], twitch: { hostChannel: "" }, mapDownloadUrl: "", participants: [] };
   let openSubs = new Set(JSON.parse(localStorage.getItem("ics_open_subs") || "[]"));
 
   const els = {
@@ -22,6 +26,15 @@
     addCategoryBtn: document.getElementById("addCategoryBtn"),
     statsFooter: document.getElementById("statsFooter"),
     toast: document.getElementById("toast"),
+    burgerBtn: document.getElementById("burgerBtn"),
+    burgerMenu: document.getElementById("burgerMenu"),
+    mapDownloadLink: document.getElementById("mapDownloadLink"),
+    mapEditBtn: document.getElementById("mapEditBtn"),
+    twitchBody: document.getElementById("twitchBody"),
+    twitchEditActions: document.getElementById("twitchEditActions"),
+    participantsGrid: document.getElementById("participantsGrid"),
+    participantsEditActions: document.getElementById("participantsEditActions"),
+    statsTableWrap: document.getElementById("statsTableWrap"),
   };
 
   const FLAVORS = [
@@ -101,6 +114,7 @@
 
   const modal = {
     overlay: document.getElementById("modalOverlay"),
+    el: document.querySelector(".modal"),
     title: document.getElementById("modalTitle"),
     desc: document.getElementById("modalDesc"),
     body: document.getElementById("modalBody"),
@@ -113,6 +127,7 @@
     modal.overlay.hidden = true;
     modal.body.innerHTML = "";
     modal.error.hidden = true;
+    modal.el.classList.remove("modal-wide");
   }
   modal.cancel.addEventListener("click", closeModal);
   modal.overlay.addEventListener("click", (e) => { if (e.target === modal.overlay) closeModal(); });
@@ -315,6 +330,98 @@
     modal.error.hidden = false;
   }
 
+  function openParticipantModal({ title, participant = null, onConfirm }) {
+    modal.title.textContent = title;
+    modal.desc.hidden = true;
+    modal.el.classList.add("modal-wide");
+    const p = participant || { name: "", avatar: "", twitchChannel: "", links: [], stats: {} };
+    const links = p.links && p.links.length ? p.links : [{ label: "", url: "" }];
+
+    modal.body.innerHTML = `
+      <input type="text" id="pName" placeholder="Nom du participant" autocomplete="off" />
+      <input type="text" id="pAvatar" placeholder="URL de la photo de profil" autocomplete="off" style="margin-top:8px;" />
+      <input type="text" id="pTwitch" placeholder="Chaîne Twitch (optionnel, sans URL)" autocomplete="off" style="margin-top:8px;" />
+      <p class="modal-subhead">Liens (Discord, réseaux, etc.)</p>
+      <div id="pLinksRows"></div>
+      <button type="button" class="add-inline-btn" id="pAddLink">＋ Ajouter un lien</button>
+      <p class="modal-subhead">Statistiques</p>
+      <div class="modal-stats-grid">
+        <label>Blocs posés <input type="number" id="pBlocksPlaced" min="0" /></label>
+        <label>Kills <input type="number" id="pKills" min="0" /></label>
+        <label>Blocs parcourus <input type="number" id="pBlocksWalked" min="0" /></label>
+        <label>Blocs cassés <input type="number" id="pBlocksBroken" min="0" /></label>
+      </div>
+    `;
+    modal.confirm.textContent = "Enregistrer";
+    modal.error.hidden = true;
+    modal.overlay.hidden = false;
+
+    const nameInput = document.getElementById("pName");
+    const avatarInput = document.getElementById("pAvatar");
+    const twitchInput = document.getElementById("pTwitch");
+    nameInput.value = p.name || "";
+    avatarInput.value = p.avatar || "";
+    twitchInput.value = p.twitchChannel || "";
+
+    const stats = p.stats || {};
+    document.getElementById("pBlocksPlaced").value = stats.blocksPlaced || 0;
+    document.getElementById("pKills").value = stats.kills || 0;
+    document.getElementById("pBlocksWalked").value = stats.blocksWalked || 0;
+    document.getElementById("pBlocksBroken").value = stats.blocksBroken || 0;
+
+    const linksRows = document.getElementById("pLinksRows");
+    function addLinkRow(link) {
+      const row = document.createElement("div");
+      row.className = "modal-link-row";
+      row.innerHTML = `
+        <input type="text" class="pLinkLabel" placeholder="Label (ex: Discord)" />
+        <input type="text" class="pLinkUrl" placeholder="https://..." />
+        <button type="button" class="btn-icon danger" title="Retirer">✕</button>
+      `;
+      row.querySelector(".pLinkLabel").value = (link && link.label) || "";
+      row.querySelector(".pLinkUrl").value = (link && link.url) || "";
+      row.querySelector(".btn-icon").addEventListener("click", () => row.remove());
+      linksRows.appendChild(row);
+    }
+    links.forEach((l) => addLinkRow(l));
+    document.getElementById("pAddLink").addEventListener("click", () => addLinkRow());
+
+    setTimeout(() => nameInput.focus(), 30);
+
+    const submit = async () => {
+      const name = nameInput.value.trim();
+      if (!name) { showModalError("Le nom est requis."); return; }
+      const collectedLinks = [...linksRows.querySelectorAll(".modal-link-row")]
+        .map((row) => ({
+          label: row.querySelector(".pLinkLabel").value.trim(),
+          url: row.querySelector(".pLinkUrl").value.trim(),
+        }))
+        .filter((l) => l.url);
+      const data = {
+        name,
+        avatar: avatarInput.value.trim(),
+        twitchChannel: twitchInput.value.trim(),
+        links: collectedLinks,
+        stats: {
+          blocksPlaced: Number(document.getElementById("pBlocksPlaced").value) || 0,
+          kills: Number(document.getElementById("pKills").value) || 0,
+          blocksWalked: Number(document.getElementById("pBlocksWalked").value) || 0,
+          blocksBroken: Number(document.getElementById("pBlocksBroken").value) || 0,
+        },
+      };
+      try {
+        modal.confirm.disabled = true;
+        await onConfirm(data);
+        closeModal();
+      } catch (e) {
+        showModalError(e.message);
+      } finally {
+        modal.confirm.disabled = false;
+      }
+    };
+    modal.confirm.onclick = submit;
+  }
+
   // ---------------- Rendering ----------------
 
   function renderUnlockButton() {
@@ -374,7 +481,199 @@
       els.categories.innerHTML = `<p class="empty-note">Aucune catégorie pour l'instant.</p>`;
     }
     state.categories.forEach((cat) => els.categories.appendChild(renderCategory(cat)));
+    renderTwitchSection();
+    renderParticipantsSection();
+    renderStatsSection();
+    renderBurgerMenu();
     renderUnlockButton();
+  }
+
+  // ---------------- Twitch ----------------
+
+  function twitchEmbedUrl(channel) {
+    const parentParams = EMBED_PARENTS.map((p) => `parent=${encodeURIComponent(p)}`).join("&");
+    return `https://player.twitch.tv/?channel=${encodeURIComponent(channel)}&${parentParams}&muted=true&autoplay=false`;
+  }
+
+  function renderTwitchSection() {
+    const channel = (state.twitch && state.twitch.hostChannel) || "";
+    els.twitchEditActions.innerHTML = "";
+    if (isEditMode()) {
+      els.twitchEditActions.appendChild(iconButton("✏️", "Modifier la chaîne Twitch", () => {
+        openTextModal({
+          title: "Chaîne Twitch de l'hôte",
+          desc: "Le nom d'utilisateur Twitch (ex: rexi), sans l'URL complète.",
+          value: channel,
+          placeholder: "nom_de_la_chaine",
+          confirmLabel: "Enregistrer",
+          onConfirm: async (v) => {
+            state = await apiCall("/settings", { method: "PUT", body: JSON.stringify({ twitchHostChannel: v }) });
+            render();
+            toast("Chaîne Twitch mise à jour.");
+          },
+        });
+      }));
+    }
+
+    if (!channel) {
+      els.twitchBody.innerHTML = `<p class="empty-note">${isEditMode() ? "Ajoute la chaîne Twitch de l'hôte avec le crayon ci-dessus." : "Le stream n'est pas encore configuré."}</p>`;
+      return;
+    }
+
+    els.twitchBody.innerHTML = `
+      <div class="twitch-embed-wrap">
+        <iframe src="${twitchEmbedUrl(channel)}" allowfullscreen scrolling="no"></iframe>
+      </div>
+      <a class="btn btn-primary twitch-visit-btn" href="https://www.twitch.tv/${encodeURIComponent(channel)}" target="_blank" rel="noopener">▶️ Voir sur Twitch</a>
+    `;
+  }
+
+  // ---------------- Participants ----------------
+
+  function renderParticipantsSection() {
+    els.participantsEditActions.innerHTML = "";
+    if (isEditMode()) {
+      const addBtn = document.createElement("button");
+      addBtn.className = "btn btn-dashed";
+      addBtn.textContent = "＋ Nouveau participant";
+      addBtn.addEventListener("click", () => {
+        openParticipantModal({
+          title: "Nouveau participant",
+          onConfirm: async (data) => {
+            state = await apiCall("/participants", { method: "POST", body: JSON.stringify(data) });
+            render();
+            toast("Participant ajouté.");
+          },
+        });
+      });
+      els.participantsEditActions.appendChild(addBtn);
+    }
+
+    els.participantsGrid.innerHTML = "";
+    const list = state.participants || [];
+    if (list.length === 0) {
+      els.participantsGrid.innerHTML = `<p class="empty-note">Aucun participant pour l'instant.</p>`;
+      return;
+    }
+    list.forEach((p) => els.participantsGrid.appendChild(renderParticipantCard(p)));
+  }
+
+  function renderParticipantCard(p) {
+    const card = document.createElement("article");
+    card.className = "participant-card";
+
+    const head = document.createElement("div");
+    head.className = "participant-head";
+    head.innerHTML = `
+      ${p.avatar ? `<img class="participant-avatar" src="${escapeHtml(p.avatar)}" alt="" onerror="this.style.visibility='hidden'" />` : ""}
+      <div class="participant-name">${escapeHtml(p.name)}</div>
+    `;
+    card.appendChild(head);
+
+    if (p.links && p.links.length > 0) {
+      const linksRow = document.createElement("div");
+      linksRow.className = "participant-links";
+      p.links.forEach((l) => {
+        const a = document.createElement("a");
+        a.href = l.url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.className = "participant-link-btn";
+        a.textContent = l.label || "Lien";
+        linksRow.appendChild(a);
+      });
+      card.appendChild(linksRow);
+    }
+
+    if (p.twitchChannel) {
+      const embedWrap = document.createElement("div");
+      embedWrap.className = "twitch-embed-wrap twitch-embed-wrap-sm";
+      embedWrap.innerHTML = `<iframe src="${twitchEmbedUrl(p.twitchChannel)}" allowfullscreen scrolling="no"></iframe>`;
+      card.appendChild(embedWrap);
+
+      const visit = document.createElement("a");
+      visit.href = `https://www.twitch.tv/${encodeURIComponent(p.twitchChannel)}`;
+      visit.target = "_blank";
+      visit.rel = "noopener";
+      visit.className = "btn btn-ghost twitch-visit-btn-sm";
+      visit.textContent = "▶️ Voir sur Twitch";
+      card.appendChild(visit);
+    }
+
+    if (isEditMode()) {
+      const actions = document.createElement("div");
+      actions.className = "participant-edit-actions";
+      actions.appendChild(iconButton("✏️", "Modifier", () => {
+        openParticipantModal({
+          title: "Modifier le participant",
+          participant: p,
+          onConfirm: async (data) => {
+            state = await apiCall(`/participants/${p.id}`, { method: "PUT", body: JSON.stringify(data) });
+            render();
+          },
+        });
+      }));
+      actions.appendChild(iconButton("🗑️", "Supprimer", () => {
+        openConfirmModal({
+          title: `Supprimer "${p.name}" ?`,
+          onConfirm: async () => {
+            state = await apiCall(`/participants/${p.id}`, { method: "DELETE" });
+            render();
+            toast("Participant supprimé.");
+          },
+        });
+      }, true));
+      card.appendChild(actions);
+    }
+
+    return card;
+  }
+
+  // ---------------- Statistiques ----------------
+
+  function renderStatsSection() {
+    const list = state.participants || [];
+    if (list.length === 0) {
+      els.statsTableWrap.innerHTML = `<p class="empty-note">Pas encore de statistiques.</p>`;
+      return;
+    }
+    const rows = list.map((p) => {
+      const s = p.stats || {};
+      return `
+        <tr>
+          <td class="stats-name-cell">
+            ${p.avatar ? `<img class="stats-avatar" src="${escapeHtml(p.avatar)}" alt="" onerror="this.style.visibility='hidden'" />` : ""}
+            ${escapeHtml(p.name)}
+          </td>
+          <td>${s.blocksPlaced || 0}</td>
+          <td>${s.kills || 0}</td>
+          <td>${s.blocksWalked || 0}</td>
+          <td>${s.blocksBroken || 0}</td>
+        </tr>
+      `;
+    }).join("");
+    els.statsTableWrap.innerHTML = `
+      <table class="stats-table">
+        <thead>
+          <tr><th>Joueur</th><th>Blocs posés</th><th>Kills</th><th>Blocs parcourus</th><th>Blocs cassés</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  // ---------------- Menu burger ----------------
+
+  function renderBurgerMenu() {
+    const url = state.mapDownloadUrl || "";
+    if (url) {
+      els.mapDownloadLink.href = url;
+      els.mapDownloadLink.classList.remove("burger-item-disabled");
+    } else {
+      els.mapDownloadLink.href = "#";
+      els.mapDownloadLink.classList.add("burger-item-disabled");
+    }
+    els.mapEditBtn.hidden = !isEditMode();
   }
 
   function renderCategory(cat) {
@@ -683,8 +982,55 @@
     });
   });
 
+  els.burgerBtn.addEventListener("click", () => {
+    const willOpen = els.burgerMenu.hidden;
+    els.burgerMenu.hidden = !willOpen;
+    els.burgerBtn.setAttribute("aria-expanded", String(willOpen));
+  });
+
+  document.addEventListener("click", (e) => {
+    if (els.burgerMenu.hidden) return;
+    if (els.burgerMenu.contains(e.target) || els.burgerBtn.contains(e.target)) return;
+    els.burgerMenu.hidden = true;
+    els.burgerBtn.setAttribute("aria-expanded", "false");
+  });
+
+  els.burgerMenu.querySelectorAll('a.burger-item[href^="#"]').forEach((a) => {
+    a.addEventListener("click", () => {
+      els.burgerMenu.hidden = true;
+      els.burgerBtn.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  els.mapDownloadLink.addEventListener("click", (e) => {
+    if (!state.mapDownloadUrl) {
+      e.preventDefault();
+      toast(isEditMode() ? "Ajoute d'abord un lien avec le crayon ✏️" : "Le lien de téléchargement n'est pas encore disponible.");
+    } else {
+      els.burgerMenu.hidden = true;
+    }
+  });
+
+  els.mapEditBtn.addEventListener("click", () => {
+    openTextModal({
+      title: "Lien de téléchargement de la map",
+      placeholder: "https://...",
+      value: state.mapDownloadUrl || "",
+      confirmLabel: "Enregistrer",
+      onConfirm: async (url) => {
+        state = await apiCall("/settings", { method: "PUT", body: JSON.stringify({ mapDownloadUrl: url }) });
+        render();
+        toast("Lien mis à jour.");
+      },
+    });
+  });
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !modal.overlay.hidden) closeModal();
+    if (e.key === "Escape" && !els.burgerMenu.hidden) {
+      els.burgerMenu.hidden = true;
+      els.burgerBtn.setAttribute("aria-expanded", "false");
+    }
   });
 
   // ---------------- Init ----------------
@@ -692,6 +1038,9 @@
   async function init() {
     try {
       state = await apiGet();
+      state.twitch = state.twitch || { hostChannel: "" };
+      state.participants = state.participants || [];
+      state.mapDownloadUrl = state.mapDownloadUrl || "";
       render();
     } catch (e) {
       els.categories.innerHTML = `<p class="empty-note">${escapeHtml(e.message)}</p>`;
