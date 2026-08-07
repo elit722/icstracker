@@ -974,6 +974,19 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 .mini-twitch-reopen[hidden] { display: none; }
 .mini-twitch-reopen:hover { filter: brightness(1.08); }
+.mini-twitch-reopen::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--cherry);
+  opacity: 0.6;
+  animation: mini-twitch-pulse 1.8s ease-out infinite;
+}
+@keyframes mini-twitch-pulse {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
 
 @media (max-width: 560px) {
   .mini-twitch { width: 260px; }

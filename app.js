@@ -1582,6 +1582,8 @@
 
     handle.addEventListener("pointerdown", (e) => {
       if (e.button !== undefined && e.button !== 0) return;
+      // Ne pas démarrer un drag si on clique sur un bouton de l'en-tête (ex: fermer).
+      if (e.target.closest("button")) return;
       dragging = true;
       const rect = el.getBoundingClientRect();
       startLeft = rect.left;
