@@ -175,6 +175,9 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 .btn-icon:hover { background: rgba(51,38,29,0.08); color: var(--ink); }
 .btn-icon.danger:hover { background: var(--cherry-tint); color: var(--cherry-dark); }
+/* Comme pour .modal-overlay et .burger-menu : sans cette règle, "display: inline-flex"
+   ci-dessus l'emporte sur [hidden] et le bouton reste visible même caché en JS. */
+.btn-icon[hidden] { display: none; }
 
 /* ---------- Scoop progress bar (signature element) ---------- */
 .overall-progress { margin-top: 26px; }
@@ -567,12 +570,36 @@ button { font-family: var(--font-body); cursor: pointer; }
 .burger-item-row .burger-item { flex: 1; }
 .burger-item-disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ---------- Sections de page (Twitch / Participants / Stats) ---------- */
+/* <button> réutilisant le style de .burger-item, sans les à-plats par défaut du navigateur */
+.burger-item-btn {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+.burger-item-btn.unlocked { background: var(--pistachio-tint); color: var(--pistachio-dark); }
+.burger-nav.is-current { background: var(--blueberry-tint); }
+.burger-sep { border: none; border-top: 2px solid var(--line); margin: 6px 4px; }
+
+/* ---------- Pages (Accueil / Twitch / Participants / Stats) ---------- */
+/* Une seule page est affichée à la fois ; le menu burger bascule entre elles. */
+.page-section { display: none; }
+.page-section.is-active { display: block; }
+
 .page-section {
   max-width: 980px;
   margin: 44px auto 0;
   padding: 0 24px;
   scroll-margin-top: 20px;
+}
+/* L'accueil contient déjà .categories / .add-category-row avec leur propre
+   marge/padding : on évite de cumuler les deux. */
+.page-accueil {
+  margin-top: 0;
+  padding: 0;
+  max-width: none;
 }
 .section-head {
   display: flex;

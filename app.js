@@ -955,6 +955,8 @@
   // ---------------- Wiring ----------------
 
   els.unlockBtn.addEventListener("click", () => {
+    els.burgerMenu.hidden = true;
+    els.burgerBtn.setAttribute("aria-expanded", "false");
     if (isEditMode()) {
       openConfirmModal({
         title: "Verrouiller le mode édition ?",
@@ -995,11 +997,32 @@
     els.burgerBtn.setAttribute("aria-expanded", "false");
   });
 
-  els.burgerMenu.querySelectorAll('a.burger-item[href^="#"]').forEach((a) => {
-    a.addEventListener("click", () => {
+  // ---------------- Navigation entre pages ----------------
+
+  const PAGE_IDS = ["accueil", "twitch", "participants", "stats"];
+
+  function showPage(pageId, { updateHash = true } = {}) {
+    if (!PAGE_IDS.includes(pageId)) pageId = "accueil";
+    document.querySelectorAll(".page-section").forEach((sec) => {
+      sec.classList.toggle("is-active", sec.dataset.page === pageId);
+    });
+    document.querySelectorAll(".burger-nav").forEach((btn) => {
+      btn.classList.toggle("is-current", btn.dataset.page === pageId);
+    });
+    window.scrollTo({ top: 0, behavior: "instant" });
+    if (updateHash) history.replaceState(null, "", `#${pageId}`);
+  }
+
+  document.querySelectorAll(".burger-nav").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      showPage(btn.dataset.page);
       els.burgerMenu.hidden = true;
       els.burgerBtn.setAttribute("aria-expanded", "false");
     });
+  });
+
+  window.addEventListener("hashchange", () => {
+    showPage(location.hash.slice(1), { updateHash: false });
   });
 
   els.mapDownloadLink.addEventListener("click", (e) => {
@@ -1042,6 +1065,7 @@
       state.participants = state.participants || [];
       state.mapDownloadUrl = state.mapDownloadUrl || "";
       render();
+      showPage(location.hash.slice(1) || "accueil", { updateHash: false });
     } catch (e) {
       els.categories.innerHTML = `<p class="empty-note">${escapeHtml(e.message)}</p>`;
     }

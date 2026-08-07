@@ -26,17 +26,20 @@
         <p class="hero-sub">Journal de bord de l'aventure — Le Refuge Émeraudien</p>
       </div>
     </div>
-    <button id="unlockBtn" class="btn btn-ghost">
-      <span id="unlockIcon">🔒</span> <span id="unlockLabel">Mode édition</span>
-    </button>
     <div class="burger-wrap">
       <button id="burgerBtn" class="btn btn-ghost burger-btn" aria-haspopup="true" aria-expanded="false">
         <span aria-hidden="true">☰</span> Menu
       </button>
       <nav id="burgerMenu" class="burger-menu" hidden>
-        <a href="#section-twitch" class="burger-item">📺 Le Twitch</a>
-        <a href="#section-participants" class="burger-item">🧑‍🤝‍🧑 Les Participants</a>
-        <a href="#section-stats" class="burger-item">📊 Statistique des participants</a>
+        <button id="unlockBtn" class="burger-item burger-item-btn">
+          <span id="unlockIcon">🔒</span> <span id="unlockLabel">Mode édition</span>
+        </button>
+        <hr class="burger-sep">
+        <button type="button" class="burger-item burger-item-btn burger-nav" data-page="accueil">🏠 Accueil</button>
+        <button type="button" class="burger-item burger-item-btn burger-nav" data-page="twitch">📺 Le Twitch</button>
+        <button type="button" class="burger-item burger-item-btn burger-nav" data-page="participants">🧑‍🤝‍🧑 Les Participants</button>
+        <button type="button" class="burger-item burger-item-btn burger-nav" data-page="stats">📊 Statistique des participants</button>
+        <hr class="burger-sep">
         <div class="burger-item-row">
           <a id="mapDownloadLink" class="burger-item" href="#" target="_blank" rel="noopener">🗺️ Download Map</a>
           <button id="mapEditBtn" class="btn-icon" title="Modifier le lien de la map" hidden>✏️</button>
@@ -59,36 +62,42 @@
   </div>
 </header>
 
-<main id="categories" class="categories">
-  <!-- injecté par app.js -->
+<main id="pages">
+
+  <section id="page-accueil" class="page-section page-accueil is-active" data-page="accueil">
+    <div id="categories" class="categories">
+      <!-- injecté par app.js -->
+    </div>
+
+    <div class="add-category-row" id="addCategoryRow" hidden>
+      <button class="btn btn-dashed" id="addCategoryBtn">＋ Nouvelle catégorie</button>
+    </div>
+  </section>
+
+  <section id="page-twitch" class="page-section" data-page="twitch">
+    <div class="section-head">
+      <h2>📺 Le Twitch</h2>
+      <div class="section-actions" id="twitchEditActions"></div>
+    </div>
+    <div id="twitchBody"></div>
+  </section>
+
+  <section id="page-participants" class="page-section" data-page="participants">
+    <div class="section-head">
+      <h2>🧑‍🤝‍🧑 Les Participants</h2>
+      <div class="section-actions" id="participantsEditActions"></div>
+    </div>
+    <div id="participantsGrid" class="participants-grid"></div>
+  </section>
+
+  <section id="page-stats" class="page-section" data-page="stats">
+    <div class="section-head">
+      <h2>📊 Statistique des participants</h2>
+    </div>
+    <div id="statsTableWrap"></div>
+  </section>
+
 </main>
-
-<div class="add-category-row" id="addCategoryRow" hidden>
-  <button class="btn btn-dashed" id="addCategoryBtn">＋ Nouvelle catégorie</button>
-</div>
-
-<section id="section-twitch" class="page-section">
-  <div class="section-head">
-    <h2>📺 Le Twitch</h2>
-    <div class="section-actions" id="twitchEditActions"></div>
-  </div>
-  <div id="twitchBody"></div>
-</section>
-
-<section id="section-participants" class="page-section">
-  <div class="section-head">
-    <h2>🧑‍🤝‍🧑 Les Participants</h2>
-    <div class="section-actions" id="participantsEditActions"></div>
-  </div>
-  <div id="participantsGrid" class="participants-grid"></div>
-</section>
-
-<section id="section-stats" class="page-section">
-  <div class="section-head">
-    <h2>📊 Statistique des participants</h2>
-  </div>
-  <div id="statsTableWrap"></div>
-</section>
 
 <footer class="site-footer">
   <p>Fait avec 🍧 pour l'aventure — <span id="statsFooter"></span></p>
