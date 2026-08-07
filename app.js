@@ -787,21 +787,30 @@
 
   // Récupère le statut live/hors-ligne (+ bannière) des chaînes données auprès du Worker,
   // puis rafraîchit uniquement les sections concernées (pas de rechargement complet des données).
+  let twitchStatusRetryCount = 0;
+
   async function refreshTwitchStatus(channels) {
     const uniq = [...new Set((channels || []).filter(Boolean).map((c) => c.toLowerCase()))];
     if (uniq.length === 0) return;
     try {
       const res = await fetch(`${API}/twitch/status?channels=${encodeURIComponent(uniq.join(","))}`);
-      if (!res.ok) throw new Error(`status ${res.status}`);
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `status ${res.status}`);
       twitchStatus = { ...twitchStatus, ...data };
+      twitchStatusRetryCount = 0;
     } catch (e) {
-      // API de statut indisponible (Worker pas encore redéployé, secrets Twitch manquants…) :
-      // on retombe sur le lecteur en direct par défaut plutôt que de rester bloqué sur "Chargement…".
-      console.warn("Statut Twitch indisponible, retour au lecteur par défaut :", e.message);
-      uniq.forEach((c) => {
-        if (!twitchStatus[c]) twitchStatus[c] = { live: true };
-      });
+      // On NE retombe PAS sur le lecteur en direct par défaut ici : si la chaîne est
+      // réellement hors ligne, ça réafficherait l'écran "hors ligne" natif de Twitch
+      // qu'on cherche justement à remplacer. On garde l'état "Chargement…" et on
+      // réessaie plus tard (l'API peut être temporairement indisponible).
+      console.error("Statut Twitch indisponible :", e.message);
+      if (isEditMode() && twitchStatusRetryCount === 0) {
+        toast(`Statut Twitch indisponible : ${e.message}`);
+      }
+      twitchStatusRetryCount++;
+      if (twitchStatusRetryCount <= 5) {
+        setTimeout(() => refreshTwitchStatus(uniq), 15000);
+      }
     }
     renderTwitchSection();
     renderParticipantsSection();

@@ -249,6 +249,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   cursor: pointer;
 }
 .grid-cols-select:hover { border-color: var(--blueberry); }
+.grid-cols-row[hidden] { display: none; }
 
 /* ---------- Categories ---------- */
 .categories {
