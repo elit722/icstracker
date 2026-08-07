@@ -227,6 +227,29 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 .scoopbar-lg .scoop-marker { font-size: 30px; }
 
+/* ---------- Réglage du nombre de fiches par ligne (mode édition) ---------- */
+.grid-cols-row {
+  max-width: 980px;
+  margin: 18px auto 0;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.grid-cols-label { font-weight: 800; font-size: 13.5px; color: var(--ink-soft); }
+.grid-cols-select {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 13.5px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm, 8px);
+  border: 2px solid var(--blueberry-tint);
+  background: var(--cream);
+  color: var(--ink);
+  cursor: pointer;
+}
+.grid-cols-select:hover { border-color: var(--blueberry); }
+
 /* ---------- Categories ---------- */
 .categories {
   max-width: 980px;
@@ -289,7 +312,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 .quest-grid {
   margin-top: 14px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(max(260px, calc((100% - (var(--cards-cols, 3) - 1) * 14px) / var(--cards-cols, 3))), 1fr));
   gap: 14px;
 }
 
@@ -691,6 +714,27 @@ button { font-family: var(--font-body); cursor: pointer; }
 .participant-link-btn:hover { background: var(--blueberry); color: white; }
 .participant-edit-actions { display: flex; justify-content: flex-end; gap: 4px; margin-top: -4px; }
 
+/* Participants sans chaîne Twitch : ligne pleine largeur, contenu centré,
+   pour ne pas laisser une carte "vide" à la même hauteur que les cartes avec stream. */
+.participant-card-compact {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  gap: 10px 22px;
+  position: relative;
+}
+.participant-card-compact .participant-head { flex: 0 0 auto; }
+.participant-card-compact .participant-links { justify-content: center; margin: 0; }
+.participant-card-compact .participant-edit-actions {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  margin: 0;
+}
+
 /* ---------- Tableau de statistiques ---------- */
 .stats-table {
   width: 100%;
@@ -961,9 +1005,9 @@ button { font-family: var(--font-body); cursor: pointer; }
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  border: none;
-  background: var(--cherry);
-  color: white;
+  border: 3px solid var(--cherry);
+  background: var(--cream);
+  color: var(--ink);
   font-size: 20px;
   box-shadow: 0 10px 24px -8px rgba(51,38,29,0.5);
   cursor: pointer;
@@ -973,7 +1017,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   justify-content: center;
 }
 .mini-twitch-reopen[hidden] { display: none; }
-.mini-twitch-reopen:hover { filter: brightness(1.08); }
+.mini-twitch-reopen:hover { background: var(--cherry-tint); }
 .mini-twitch-reopen::after {
   content: "";
   position: absolute;

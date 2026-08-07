@@ -11,7 +11,7 @@
   // (paramètre "parent" obligatoire). Ajoute chaque domaine que tu utilises.
   const EMBED_PARENTS = ["elit722.github.io", "localhost"];
 
-  let state = { categories: [], twitch: { hostChannel: "" }, mapDownloadUrl: "", participants: [] };
+  let state = { categories: [], twitch: { hostChannel: "" }, mapDownloadUrl: "", participants: [], cardsCols: 3 };
   let openSubs = new Set(JSON.parse(localStorage.getItem("ics_open_subs") || "[]"));
 
   const els = {
@@ -24,6 +24,8 @@
     unlockLabel: document.getElementById("unlockLabel"),
     addCategoryRow: document.getElementById("addCategoryRow"),
     addCategoryBtn: document.getElementById("addCategoryBtn"),
+    gridColumnsRow: document.getElementById("gridColumnsRow"),
+    gridColumnsSelect: document.getElementById("gridColumnsSelect"),
     statsFooter: document.getElementById("statsFooter"),
     toast: document.getElementById("toast"),
     burgerBtn: document.getElementById("burgerBtn"),
@@ -717,12 +719,24 @@
       els.unlockLabel.textContent = "Mode édition actif";
       els.unlockBtn.classList.add("unlocked");
       els.addCategoryRow.hidden = false;
+      els.gridColumnsRow.hidden = false;
     } else {
       els.unlockIcon.textContent = "🔒";
       els.unlockLabel.textContent = "Mode édition";
       els.unlockBtn.classList.remove("unlocked");
       els.addCategoryRow.hidden = true;
+      els.gridColumnsRow.hidden = true;
     }
+  }
+
+  // Nombre de fiches (quêtes) affichées par ligne sur la page d'accueil.
+  // Choisi en mode édition, sauvegardé côté serveur (partagé par tous les visiteurs),
+  // et appliqué via une variable CSS — la grille reste adaptable et réduit
+  // automatiquement le nombre de colonnes sur les petits écrans.
+  function applyCardsCols() {
+    const cols = Number(state.cardsCols) || 3;
+    document.documentElement.style.setProperty("--cards-cols", cols);
+    if (els.gridColumnsSelect) els.gridColumnsSelect.value = String(cols);
   }
 
   function questLeafStats(quest) {
@@ -762,6 +776,8 @@
     els.overallCount.textContent = `${done} / ${total} scoops`;
     els.overallMarker.style.left = `calc(${p}% - 12px)`;
     els.statsFooter.textContent = total > 0 ? `${p}% de l'aventure complétée` : "";
+
+    applyCardsCols();
 
     els.categories.innerHTML = "";
     if (state.categories.length === 0) {
@@ -850,7 +866,8 @@
 
   function renderParticipantCard(p) {
     const card = document.createElement("article");
-    card.className = "participant-card";
+    const hasTwitch = Boolean(p.twitchChannel);
+    card.className = "participant-card" + (hasTwitch ? "" : " participant-card-compact");
 
     const head = document.createElement("div");
     head.className = "participant-head";
@@ -1533,15 +1550,9 @@
 
     miniTwitchFrame.src = twitchEmbedUrl(MINI_TWITCH_CHANNEL, { autoplay: true });
 
-    // Ouvert par défaut, sauf si l'utilisateur l'a explicitement fermé.
-    const openPref = localStorage.getItem(MINI_TWITCH_OPEN_KEY);
-    if (openPref === "0") {
-      miniTwitch.hidden = true;
-      miniTwitchReopen.hidden = false;
-    } else {
-      miniTwitch.hidden = false;
-      miniTwitchReopen.hidden = true;
-    }
+    // Ouvert par défaut, sauf si l'utilisateur l'a explicitement fermé (et sauf sur
+    // la page Participants, gérée par updateMiniTwitchForPage/showPage).
+    updateMiniTwitchForPage(currentPageId());
 
     // Position sauvegardée (drag précédent) → sinon reste ancré en bas à gauche par défaut (CSS).
     try {
@@ -1680,6 +1691,11 @@
 
   const PAGE_IDS = ["accueil", "twitch", "participants", "stats", "remerciements", "partenaires"];
 
+  function currentPageId() {
+    const hash = location.hash.slice(1);
+    return PAGE_IDS.includes(hash) ? hash : "accueil";
+  }
+
   function showPage(pageId, { updateHash = true } = {}) {
     if (!PAGE_IDS.includes(pageId)) pageId = "accueil";
     document.querySelectorAll(".page-section").forEach((sec) => {
@@ -1690,6 +1706,28 @@
     });
     window.scrollTo({ top: 0, behavior: "instant" });
     if (updateHash) history.replaceState(null, "", `#${pageId}`);
+    updateMiniTwitchForPage(pageId);
+  }
+
+  // Le mini lecteur flottant de Rexi fait doublon avec les intégrations Twitch
+  // individuelles de la page Participants : on le masque sur cette page-là,
+  // et on restaure l'état choisi par l'utilisateur (ouvert/fermé) ailleurs.
+  function updateMiniTwitchForPage(pageId) {
+    const { miniTwitch, miniTwitchReopen } = els;
+    if (!miniTwitch || !miniTwitchReopen) return;
+    if (pageId === "participants") {
+      miniTwitch.hidden = true;
+      miniTwitchReopen.hidden = true;
+    } else {
+      const openPref = localStorage.getItem(MINI_TWITCH_OPEN_KEY);
+      if (openPref === "0") {
+        miniTwitch.hidden = true;
+        miniTwitchReopen.hidden = false;
+      } else {
+        miniTwitch.hidden = false;
+        miniTwitchReopen.hidden = true;
+      }
+    }
   }
 
   document.querySelectorAll(".burger-nav").forEach((btn) => {
@@ -1710,6 +1748,18 @@
       toast(isEditMode() ? "Ajoute d'abord un lien avec le crayon ✏️" : "Le lien de téléchargement n'est pas encore disponible.");
     } else {
       els.burgerMenu.hidden = true;
+    }
+  });
+
+  els.gridColumnsSelect.addEventListener("change", async () => {
+    const cols = Number(els.gridColumnsSelect.value) || 3;
+    document.documentElement.style.setProperty("--cards-cols", cols);
+    try {
+      state = await apiCall("/settings", { method: "PUT", body: JSON.stringify({ cardsCols: cols }) });
+      render();
+      toast("Affichage mis à jour.");
+    } catch (e) {
+      toast(e.message);
     }
   });
 
@@ -1746,6 +1796,7 @@
       state.thanks = state.thanks || [];
       state.partners = state.partners || [];
       state.socials = state.socials || [];
+      state.cardsCols = Number(state.cardsCols) || 3;
       render();
       showPage(location.hash.slice(1) || "accueil", { updateHash: false });
     } catch (e) {
