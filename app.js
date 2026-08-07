@@ -474,7 +474,7 @@
     modal.title.textContent = title;
     modal.desc.hidden = true;
     modal.el.classList.add("modal-wide");
-    const p = participant || { name: "", avatar: "", twitchChannel: "", links: [], stats: {} };
+    const p = participant || { name: "", avatar: "", twitchChannel: "", links: [] };
 
     modal.body.innerHTML = `
       <input type="text" id="pName" placeholder="Nom du participant" autocomplete="off" />
@@ -483,13 +483,6 @@
       <p class="modal-subhead">Liens (Discord, réseaux, etc.)</p>
       <div id="pLinksRows"></div>
       <button type="button" class="add-inline-btn" id="pAddLink">＋ Ajouter un lien</button>
-      <p class="modal-subhead">Statistiques</p>
-      <div class="modal-stats-grid">
-        <label>Blocs posés <input type="number" id="pBlocksPlaced" min="0" /></label>
-        <label>Kills <input type="number" id="pKills" min="0" /></label>
-        <label>Blocs parcourus <input type="number" id="pBlocksWalked" min="0" /></label>
-        <label>Blocs cassés <input type="number" id="pBlocksBroken" min="0" /></label>
-      </div>
     `;
     modal.confirm.textContent = "Enregistrer";
     modal.error.hidden = true;
@@ -501,12 +494,6 @@
     nameInput.value = p.name || "";
     avatarInput.value = p.avatar || "";
     twitchInput.value = p.twitchChannel || "";
-
-    const stats = p.stats || {};
-    document.getElementById("pBlocksPlaced").value = stats.blocksPlaced || 0;
-    document.getElementById("pKills").value = stats.kills || 0;
-    document.getElementById("pBlocksWalked").value = stats.blocksWalked || 0;
-    document.getElementById("pBlocksBroken").value = stats.blocksBroken || 0;
 
     const linksEditor = buildLinksEditor(document.getElementById("pLinksRows"), p.links);
     document.getElementById("pAddLink").addEventListener("click", () => linksEditor.addRow());
@@ -521,12 +508,6 @@
         avatar: avatarInput.value.trim(),
         twitchChannel: twitchInput.value.trim(),
         links: linksEditor.getLinks(),
-        stats: {
-          blocksPlaced: Number(document.getElementById("pBlocksPlaced").value) || 0,
-          kills: Number(document.getElementById("pKills").value) || 0,
-          blocksWalked: Number(document.getElementById("pBlocksWalked").value) || 0,
-          blocksBroken: Number(document.getElementById("pBlocksBroken").value) || 0,
-        },
       };
       try {
         modal.confirm.disabled = true;

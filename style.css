@@ -560,28 +560,6 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-weight: 700;
   max-width: 46px;
 }
-.modal-stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-.modal-stats-grid label {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--ink-soft);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.modal-stats-grid input[type="number"] {
-  border: 2px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
-  font-family: var(--font-body);
-  font-weight: 700;
-  width: 100%;
-}
-
 /* ---------- Burger menu ---------- */
 .burger-wrap { position: relative; }
 .burger-menu {
