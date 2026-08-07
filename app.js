@@ -40,10 +40,6 @@
     statsTableWrap: document.getElementById("statsTableWrap"),
     thanksGrid: document.getElementById("thanksGrid"),
     thanksEditActions: document.getElementById("thanksEditActions"),
-    partnersGrid: document.getElementById("partnersGrid"),
-    partnersEditActions: document.getElementById("partnersEditActions"),
-    socialsList: document.getElementById("socialsList"),
-    socialsEditActions: document.getElementById("socialsEditActions"),
     miniTwitch: document.getElementById("miniTwitch"),
     miniTwitchHeader: document.getElementById("miniTwitchHeader"),
     miniTwitchClose: document.getElementById("miniTwitchClose"),
@@ -587,112 +583,6 @@
     modal.confirm.onclick = submit;
   }
 
-  function openPartnerModal({ title, partner = null, onConfirm }) {
-    modal.title.textContent = title;
-    modal.desc.hidden = true;
-    modal.el.classList.add("modal-wide");
-    const p = partner || { name: "", logo: "", description: "", links: [] };
-
-    modal.body.innerHTML = `
-      <input type="text" id="ptName" placeholder="Nom du partenaire" autocomplete="off" />
-      <div class="modal-upload-row">
-        <img id="ptLogoPreview" class="modal-upload-preview is-square" alt="" hidden />
-        <div class="modal-upload-controls">
-          <input type="file" id="ptLogoFile" accept="image/*" />
-          <button type="button" class="modal-upload-remove" id="ptLogoRemove" hidden>Retirer le logo</button>
-        </div>
-      </div>
-      <p class="modal-subhead">Description</p>
-      <textarea id="ptDesc" class="modal-textarea" placeholder="Description du partenaire..." rows="3"></textarea>
-      <p class="modal-subhead">Liens (site web, Discord, réseaux, etc.)</p>
-      <div id="ptLinksRows"></div>
-      <button type="button" class="add-inline-btn" id="ptAddLink">＋ Ajouter un lien</button>
-    `;
-    modal.confirm.textContent = "Enregistrer";
-    modal.error.hidden = true;
-    modal.overlay.hidden = false;
-
-    const nameInput = document.getElementById("ptName");
-    const descInput = document.getElementById("ptDesc");
-    nameInput.value = p.name || "";
-    descInput.value = p.description || "";
-
-    const getLogo = wireImageUpload({
-      fileInput: document.getElementById("ptLogoFile"),
-      preview: document.getElementById("ptLogoPreview"),
-      removeBtn: document.getElementById("ptLogoRemove"),
-      initialValue: p.logo || "",
-    });
-
-    const linksEditor = buildLinksEditor(document.getElementById("ptLinksRows"), p.links);
-    document.getElementById("ptAddLink").addEventListener("click", () => linksEditor.addRow());
-
-    setTimeout(() => nameInput.focus(), 30);
-
-    const submit = async () => {
-      const name = nameInput.value.trim();
-      if (!name) { showModalError("Le nom est requis."); return; }
-      const data = {
-        name,
-        logo: getLogo(),
-        description: descInput.value.trim(),
-        links: linksEditor.getLinks(),
-      };
-      try {
-        modal.confirm.disabled = true;
-        await onConfirm(data);
-        closeModal();
-      } catch (e) {
-        showModalError(e.message);
-      } finally {
-        modal.confirm.disabled = false;
-      }
-    };
-    modal.confirm.onclick = submit;
-  }
-
-  function openSocialModal({ title, social = null, onConfirm }) {
-    modal.title.textContent = title;
-    modal.desc.hidden = true;
-    const s = social || { name: "", icon: "🔗", url: "" };
-
-    modal.body.innerHTML = `
-      <input type="text" id="soName" placeholder="Nom (ex: Discord)" autocomplete="off" />
-      <input type="text" id="soIcon" placeholder="Emoji (ex: 💬)" autocomplete="off" style="margin-top:8px;" maxlength="4" />
-      <input type="text" id="soUrl" placeholder="https://..." autocomplete="off" style="margin-top:8px;" />
-    `;
-    modal.confirm.textContent = "Enregistrer";
-    modal.error.hidden = true;
-    modal.overlay.hidden = false;
-
-    const nameInput = document.getElementById("soName");
-    const iconInput = document.getElementById("soIcon");
-    const urlInput = document.getElementById("soUrl");
-    nameInput.value = s.name || "";
-    iconInput.value = s.icon || "🔗";
-    urlInput.value = s.url || "";
-
-    setTimeout(() => nameInput.focus(), 30);
-
-    const submit = async () => {
-      const name = nameInput.value.trim();
-      const url = urlInput.value.trim();
-      if (!name) { showModalError("Le nom est requis."); return; }
-      if (!url) { showModalError("Le lien est requis."); return; }
-      const data = { name, icon: iconInput.value.trim() || "🔗", url };
-      try {
-        modal.confirm.disabled = true;
-        await onConfirm(data);
-        closeModal();
-      } catch (e) {
-        showModalError(e.message);
-      } finally {
-        modal.confirm.disabled = false;
-      }
-    };
-    modal.confirm.onclick = submit;
-  }
-
   // ---------------- Rendering ----------------
 
   function renderUnlockButton() {
@@ -769,8 +659,6 @@
     renderParticipantsSection();
     renderStatsSection();
     renderThanksSection();
-    renderPartnersSection();
-    renderSocialsSection();
     renderBurgerMenu();
     renderUnlockButton();
   }
@@ -1079,181 +967,6 @@
     }
 
     return card;
-  }
-
-  // ---------------- Partenaires ----------------
-
-  function renderPartnersSection() {
-    els.partnersEditActions.innerHTML = "";
-    if (isEditMode()) {
-      const addBtn = document.createElement("button");
-      addBtn.className = "btn btn-dashed";
-      addBtn.textContent = "＋ Nouveau partenaire";
-      addBtn.addEventListener("click", () => {
-        openPartnerModal({
-          title: "Nouveau partenaire",
-          onConfirm: async (data) => {
-            state = await apiCall("/partners", { method: "POST", body: JSON.stringify(data) });
-            render();
-            toast("Partenaire ajouté.");
-          },
-        });
-      });
-      els.partnersEditActions.appendChild(addBtn);
-    }
-
-    els.partnersGrid.innerHTML = "";
-    const list = state.partners || [];
-    if (list.length === 0) {
-      els.partnersGrid.innerHTML = `<p class="empty-note">${isEditMode() ? "Ajoute un partenaire avec le bouton ci-dessus." : "Aucun partenaire pour l'instant."}</p>`;
-      return;
-    }
-    list.forEach((p) => els.partnersGrid.appendChild(renderPartnerCard(p)));
-  }
-
-  function renderPartnerCard(p) {
-    const card = document.createElement("article");
-    card.className = "partner-card";
-
-    if (p.logo) {
-      const img = document.createElement("img");
-      img.className = "partner-logo";
-      img.src = p.logo;
-      img.alt = "";
-      img.onerror = () => (img.style.visibility = "hidden");
-      card.appendChild(img);
-    } else {
-      const ph = document.createElement("div");
-      ph.className = "partner-logo-placeholder";
-      ph.textContent = "🤝";
-      card.appendChild(ph);
-    }
-
-    const name = document.createElement("div");
-    name.className = "partner-name";
-    name.textContent = p.name;
-    card.appendChild(name);
-
-    if (p.description) {
-      const desc = document.createElement("p");
-      desc.className = "partner-desc";
-      desc.textContent = p.description;
-      card.appendChild(desc);
-    }
-
-    if (p.links && p.links.length > 0) {
-      const linksRow = document.createElement("div");
-      linksRow.className = "partner-links-row";
-      p.links.forEach((l) => {
-        const a = document.createElement("a");
-        a.className = "partner-link";
-        a.href = l.url;
-        a.target = "_blank";
-        a.rel = "noopener";
-        a.textContent = `${platformOf(l.icon).icon} ${l.label || platformOf(l.icon).label}`;
-        linksRow.appendChild(a);
-      });
-      card.appendChild(linksRow);
-    }
-
-    if (isEditMode()) {
-      const actions = document.createElement("div");
-      actions.className = "partner-edit-actions";
-      actions.appendChild(iconButton("✏️", "Modifier", () => {
-        openPartnerModal({
-          title: "Modifier le partenaire",
-          partner: p,
-          onConfirm: async (data) => {
-            state = await apiCall(`/partners/${p.id}`, { method: "PUT", body: JSON.stringify(data) });
-            render();
-          },
-        });
-      }));
-      actions.appendChild(iconButton("🗑️", "Supprimer", () => {
-        openConfirmModal({
-          title: `Supprimer "${p.name}" ?`,
-          onConfirm: async () => {
-            state = await apiCall(`/partners/${p.id}`, { method: "DELETE" });
-            render();
-            toast("Partenaire supprimé.");
-          },
-        });
-      }, true));
-      card.appendChild(actions);
-    }
-
-    return card;
-  }
-
-  // ---------------- Réseaux sociaux ----------------
-
-  function renderSocialsSection() {
-    els.socialsEditActions.innerHTML = "";
-    if (isEditMode()) {
-      const addBtn = document.createElement("button");
-      addBtn.className = "btn btn-dashed";
-      addBtn.textContent = "＋ Nouveau réseau";
-      addBtn.addEventListener("click", () => {
-        openSocialModal({
-          title: "Nouveau réseau",
-          onConfirm: async (data) => {
-            state = await apiCall("/socials", { method: "POST", body: JSON.stringify(data) });
-            render();
-            toast("Réseau ajouté.");
-          },
-        });
-      });
-      els.socialsEditActions.appendChild(addBtn);
-    }
-
-    els.socialsList.innerHTML = "";
-    const list = state.socials || [];
-    if (list.length === 0) {
-      els.socialsList.innerHTML = `<p class="empty-note">${isEditMode() ? "Ajoute un réseau avec le bouton ci-dessus." : "Aucun réseau pour l'instant."}</p>`;
-      return;
-    }
-    list.forEach((s) => els.socialsList.appendChild(renderSocialChip(s)));
-  }
-
-  function renderSocialChip(s) {
-    const wrap = document.createElement("div");
-    wrap.className = "social-item-wrap";
-
-    const a = document.createElement("a");
-    a.className = "social-chip";
-    a.href = s.url;
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.innerHTML = `<span class="social-chip-icon">${escapeHtml(s.icon || "🔗")}</span> ${escapeHtml(s.name)}`;
-    wrap.appendChild(a);
-
-    if (isEditMode()) {
-      const actions = document.createElement("div");
-      actions.className = "social-chip-edit-actions";
-      actions.appendChild(iconButton("✏️", "Modifier", () => {
-        openSocialModal({
-          title: "Modifier le réseau",
-          social: s,
-          onConfirm: async (data) => {
-            state = await apiCall(`/socials/${s.id}`, { method: "PUT", body: JSON.stringify(data) });
-            render();
-          },
-        });
-      }, false, true));
-      actions.appendChild(iconButton("🗑️", "Supprimer", () => {
-        openConfirmModal({
-          title: `Supprimer "${s.name}" ?`,
-          onConfirm: async () => {
-            state = await apiCall(`/socials/${s.id}`, { method: "DELETE" });
-            render();
-            toast("Réseau supprimé.");
-          },
-        });
-      }, true, true));
-      wrap.appendChild(actions);
-    }
-
-    return wrap;
   }
 
   // ---------------- Menu burger ----------------
@@ -1697,7 +1410,7 @@
 
   // ---------------- Navigation entre pages ----------------
 
-  const PAGE_IDS = ["accueil", "participants", "stats", "remerciements", "partenaires"];
+  const PAGE_IDS = ["accueil", "participants", "stats", "remerciements"];
 
   function currentPageId() {
     const hash = location.hash.slice(1);
@@ -1801,8 +1514,6 @@
       state.participants = state.participants || [];
       state.mapDownloadUrl = state.mapDownloadUrl || "";
       state.thanks = state.thanks || [];
-      state.partners = state.partners || [];
-      state.socials = state.socials || [];
       state.cardsCols = Number(state.cardsCols) || 3;
       render();
       refreshTwitchStatus(allTwitchChannels());
