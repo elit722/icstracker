@@ -35,6 +35,12 @@
     participantsGrid: document.getElementById("participantsGrid"),
     participantsEditActions: document.getElementById("participantsEditActions"),
     statsTableWrap: document.getElementById("statsTableWrap"),
+    thanksGrid: document.getElementById("thanksGrid"),
+    thanksEditActions: document.getElementById("thanksEditActions"),
+    partnersGrid: document.getElementById("partnersGrid"),
+    partnersEditActions: document.getElementById("partnersEditActions"),
+    socialsList: document.getElementById("socialsList"),
+    socialsEditActions: document.getElementById("socialsEditActions"),
   };
 
   const FLAVORS = [
@@ -98,6 +104,56 @@
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || "Code invalide.");
     setToken(data.token);
+  }
+
+  // ---------------- Upload de photo ----------------
+
+  function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("Impossible de lire l'image."));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Branche un input[type=file] + preview + bouton "retirer" sur une valeur d'image (URL ou data URL).
+  // Retourne une fonction getValue() qui renvoie la valeur courante (chaîne vide si retirée).
+  function wireImageUpload({ fileInput, preview, removeBtn, initialValue = "" }) {
+    let current = initialValue || "";
+    const updatePreview = () => {
+      if (current) {
+        preview.src = current;
+        preview.hidden = false;
+        removeBtn.hidden = false;
+      } else {
+        preview.src = "";
+        preview.hidden = true;
+        removeBtn.hidden = true;
+      }
+    };
+    updatePreview();
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      if (file.size > 4_000_000) {
+        toast("Image trop lourde (max ~4 Mo).");
+        fileInput.value = "";
+        return;
+      }
+      try {
+        current = await readFileAsDataURL(file);
+        updatePreview();
+      } catch (e) {
+        toast(e.message);
+      }
+    });
+    removeBtn.addEventListener("click", () => {
+      current = "";
+      fileInput.value = "";
+      updatePreview();
+    });
+    return () => current;
   }
 
   // ---------------- Toast ----------------
@@ -422,6 +478,172 @@
     modal.confirm.onclick = submit;
   }
 
+  function openCreditModal({ title, credit = null, onConfirm }) {
+    modal.title.textContent = title;
+    modal.desc.hidden = true;
+    modal.el.classList.add("modal-wide");
+    const c = credit || { name: "", avatar: "", description: "", link: "" };
+
+    modal.body.innerHTML = `
+      <input type="text" id="crName" placeholder="Nom" autocomplete="off" />
+      <div class="modal-upload-row">
+        <img id="crAvatarPreview" class="modal-upload-preview" alt="" hidden />
+        <div class="modal-upload-controls">
+          <input type="file" id="crAvatarFile" accept="image/*" />
+          <button type="button" class="modal-upload-remove" id="crAvatarRemove" hidden>Retirer la photo</button>
+        </div>
+      </div>
+      <p class="modal-subhead">Description</p>
+      <textarea id="crDesc" class="modal-textarea" placeholder="Un petit mot pour cette personne..." rows="3"></textarea>
+      <p class="modal-subhead">Lien (optionnel)</p>
+      <input type="text" id="crLink" placeholder="https://..." autocomplete="off" />
+    `;
+    modal.confirm.textContent = "Enregistrer";
+    modal.error.hidden = true;
+    modal.overlay.hidden = false;
+
+    const nameInput = document.getElementById("crName");
+    const descInput = document.getElementById("crDesc");
+    const linkInput = document.getElementById("crLink");
+    nameInput.value = c.name || "";
+    descInput.value = c.description || "";
+    linkInput.value = c.link || "";
+
+    const getAvatar = wireImageUpload({
+      fileInput: document.getElementById("crAvatarFile"),
+      preview: document.getElementById("crAvatarPreview"),
+      removeBtn: document.getElementById("crAvatarRemove"),
+      initialValue: c.avatar || "",
+    });
+
+    setTimeout(() => nameInput.focus(), 30);
+
+    const submit = async () => {
+      const name = nameInput.value.trim();
+      if (!name) { showModalError("Le nom est requis."); return; }
+      const data = {
+        name,
+        avatar: getAvatar(),
+        description: descInput.value.trim(),
+        link: linkInput.value.trim(),
+      };
+      try {
+        modal.confirm.disabled = true;
+        await onConfirm(data);
+        closeModal();
+      } catch (e) {
+        showModalError(e.message);
+      } finally {
+        modal.confirm.disabled = false;
+      }
+    };
+    modal.confirm.onclick = submit;
+  }
+
+  function openPartnerModal({ title, partner = null, onConfirm }) {
+    modal.title.textContent = title;
+    modal.desc.hidden = true;
+    modal.el.classList.add("modal-wide");
+    const p = partner || { name: "", logo: "", description: "", url: "" };
+
+    modal.body.innerHTML = `
+      <input type="text" id="ptName" placeholder="Nom du partenaire" autocomplete="off" />
+      <div class="modal-upload-row">
+        <img id="ptLogoPreview" class="modal-upload-preview is-square" alt="" hidden />
+        <div class="modal-upload-controls">
+          <input type="file" id="ptLogoFile" accept="image/*" />
+          <button type="button" class="modal-upload-remove" id="ptLogoRemove" hidden>Retirer le logo</button>
+        </div>
+      </div>
+      <p class="modal-subhead">Description</p>
+      <textarea id="ptDesc" class="modal-textarea" placeholder="Description du partenaire..." rows="3"></textarea>
+      <p class="modal-subhead">Lien (optionnel)</p>
+      <input type="text" id="ptUrl" placeholder="https://..." autocomplete="off" />
+    `;
+    modal.confirm.textContent = "Enregistrer";
+    modal.error.hidden = true;
+    modal.overlay.hidden = false;
+
+    const nameInput = document.getElementById("ptName");
+    const descInput = document.getElementById("ptDesc");
+    const urlInput = document.getElementById("ptUrl");
+    nameInput.value = p.name || "";
+    descInput.value = p.description || "";
+    urlInput.value = p.url || "";
+
+    const getLogo = wireImageUpload({
+      fileInput: document.getElementById("ptLogoFile"),
+      preview: document.getElementById("ptLogoPreview"),
+      removeBtn: document.getElementById("ptLogoRemove"),
+      initialValue: p.logo || "",
+    });
+
+    setTimeout(() => nameInput.focus(), 30);
+
+    const submit = async () => {
+      const name = nameInput.value.trim();
+      if (!name) { showModalError("Le nom est requis."); return; }
+      const data = {
+        name,
+        logo: getLogo(),
+        description: descInput.value.trim(),
+        url: urlInput.value.trim(),
+      };
+      try {
+        modal.confirm.disabled = true;
+        await onConfirm(data);
+        closeModal();
+      } catch (e) {
+        showModalError(e.message);
+      } finally {
+        modal.confirm.disabled = false;
+      }
+    };
+    modal.confirm.onclick = submit;
+  }
+
+  function openSocialModal({ title, social = null, onConfirm }) {
+    modal.title.textContent = title;
+    modal.desc.hidden = true;
+    const s = social || { name: "", icon: "🔗", url: "" };
+
+    modal.body.innerHTML = `
+      <input type="text" id="soName" placeholder="Nom (ex: Discord)" autocomplete="off" />
+      <input type="text" id="soIcon" placeholder="Emoji (ex: 💬)" autocomplete="off" style="margin-top:8px;" maxlength="4" />
+      <input type="text" id="soUrl" placeholder="https://..." autocomplete="off" style="margin-top:8px;" />
+    `;
+    modal.confirm.textContent = "Enregistrer";
+    modal.error.hidden = true;
+    modal.overlay.hidden = false;
+
+    const nameInput = document.getElementById("soName");
+    const iconInput = document.getElementById("soIcon");
+    const urlInput = document.getElementById("soUrl");
+    nameInput.value = s.name || "";
+    iconInput.value = s.icon || "🔗";
+    urlInput.value = s.url || "";
+
+    setTimeout(() => nameInput.focus(), 30);
+
+    const submit = async () => {
+      const name = nameInput.value.trim();
+      const url = urlInput.value.trim();
+      if (!name) { showModalError("Le nom est requis."); return; }
+      if (!url) { showModalError("Le lien est requis."); return; }
+      const data = { name, icon: iconInput.value.trim() || "🔗", url };
+      try {
+        modal.confirm.disabled = true;
+        await onConfirm(data);
+        closeModal();
+      } catch (e) {
+        showModalError(e.message);
+      } finally {
+        modal.confirm.disabled = false;
+      }
+    };
+    modal.confirm.onclick = submit;
+  }
+
   // ---------------- Rendering ----------------
 
   function renderUnlockButton() {
@@ -484,6 +706,9 @@
     renderTwitchSection();
     renderParticipantsSection();
     renderStatsSection();
+    renderThanksSection();
+    renderPartnersSection();
+    renderSocialsSection();
     renderBurgerMenu();
     renderUnlockButton();
   }
@@ -660,6 +885,275 @@
         <tbody>${rows}</tbody>
       </table>
     `;
+  }
+
+  // ---------------- Remerciements ----------------
+
+  function renderThanksSection() {
+    els.thanksEditActions.innerHTML = "";
+    if (isEditMode()) {
+      const addBtn = document.createElement("button");
+      addBtn.className = "btn btn-dashed";
+      addBtn.textContent = "＋ Nouveau profil";
+      addBtn.addEventListener("click", () => {
+        openCreditModal({
+          title: "Nouveau remerciement",
+          onConfirm: async (data) => {
+            state = await apiCall("/thanks", { method: "POST", body: JSON.stringify(data) });
+            render();
+            toast("Profil ajouté.");
+          },
+        });
+      });
+      els.thanksEditActions.appendChild(addBtn);
+    }
+
+    els.thanksGrid.innerHTML = "";
+    const list = state.thanks || [];
+    if (list.length === 0) {
+      els.thanksGrid.innerHTML = `<p class="empty-note">${isEditMode() ? "Ajoute un profil avec le bouton ci-dessus." : "Aucun remerciement pour l'instant."}</p>`;
+      return;
+    }
+    list.forEach((c) => els.thanksGrid.appendChild(renderThanksCard(c)));
+  }
+
+  function renderThanksCard(c) {
+    const card = document.createElement("article");
+    card.className = "thanks-card";
+
+    if (c.avatar) {
+      const img = document.createElement("img");
+      img.className = "thanks-avatar";
+      img.src = c.avatar;
+      img.alt = "";
+      img.onerror = () => (img.style.visibility = "hidden");
+      card.appendChild(img);
+    } else {
+      const ph = document.createElement("div");
+      ph.className = "thanks-avatar-placeholder";
+      ph.textContent = (c.name || "?").trim().charAt(0).toUpperCase() || "?";
+      card.appendChild(ph);
+    }
+
+    const name = document.createElement("div");
+    name.className = "thanks-name";
+    name.textContent = c.name;
+    card.appendChild(name);
+
+    if (c.description) {
+      const desc = document.createElement("p");
+      desc.className = "thanks-desc";
+      desc.textContent = c.description;
+      card.appendChild(desc);
+    }
+
+    if (c.link) {
+      const a = document.createElement("a");
+      a.className = "thanks-link";
+      a.href = c.link;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.textContent = "🔗 Voir le lien";
+      card.appendChild(a);
+    }
+
+    if (isEditMode()) {
+      const actions = document.createElement("div");
+      actions.className = "thanks-edit-actions";
+      actions.appendChild(iconButton("✏️", "Modifier", () => {
+        openCreditModal({
+          title: "Modifier le profil",
+          credit: c,
+          onConfirm: async (data) => {
+            state = await apiCall(`/thanks/${c.id}`, { method: "PUT", body: JSON.stringify(data) });
+            render();
+          },
+        });
+      }));
+      actions.appendChild(iconButton("🗑️", "Supprimer", () => {
+        openConfirmModal({
+          title: `Supprimer "${c.name}" ?`,
+          onConfirm: async () => {
+            state = await apiCall(`/thanks/${c.id}`, { method: "DELETE" });
+            render();
+            toast("Profil supprimé.");
+          },
+        });
+      }, true));
+      card.appendChild(actions);
+    }
+
+    return card;
+  }
+
+  // ---------------- Partenaires ----------------
+
+  function renderPartnersSection() {
+    els.partnersEditActions.innerHTML = "";
+    if (isEditMode()) {
+      const addBtn = document.createElement("button");
+      addBtn.className = "btn btn-dashed";
+      addBtn.textContent = "＋ Nouveau partenaire";
+      addBtn.addEventListener("click", () => {
+        openPartnerModal({
+          title: "Nouveau partenaire",
+          onConfirm: async (data) => {
+            state = await apiCall("/partners", { method: "POST", body: JSON.stringify(data) });
+            render();
+            toast("Partenaire ajouté.");
+          },
+        });
+      });
+      els.partnersEditActions.appendChild(addBtn);
+    }
+
+    els.partnersGrid.innerHTML = "";
+    const list = state.partners || [];
+    if (list.length === 0) {
+      els.partnersGrid.innerHTML = `<p class="empty-note">${isEditMode() ? "Ajoute un partenaire avec le bouton ci-dessus." : "Aucun partenaire pour l'instant."}</p>`;
+      return;
+    }
+    list.forEach((p) => els.partnersGrid.appendChild(renderPartnerCard(p)));
+  }
+
+  function renderPartnerCard(p) {
+    const card = document.createElement("article");
+    card.className = "partner-card";
+
+    if (p.logo) {
+      const img = document.createElement("img");
+      img.className = "partner-logo";
+      img.src = p.logo;
+      img.alt = "";
+      img.onerror = () => (img.style.visibility = "hidden");
+      card.appendChild(img);
+    } else {
+      const ph = document.createElement("div");
+      ph.className = "partner-logo-placeholder";
+      ph.textContent = "🤝";
+      card.appendChild(ph);
+    }
+
+    const name = document.createElement("div");
+    name.className = "partner-name";
+    name.textContent = p.name;
+    card.appendChild(name);
+
+    if (p.description) {
+      const desc = document.createElement("p");
+      desc.className = "partner-desc";
+      desc.textContent = p.description;
+      card.appendChild(desc);
+    }
+
+    if (p.url) {
+      const a = document.createElement("a");
+      a.className = "partner-link";
+      a.href = p.url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.textContent = "🔗 Visiter";
+      card.appendChild(a);
+    }
+
+    if (isEditMode()) {
+      const actions = document.createElement("div");
+      actions.className = "partner-edit-actions";
+      actions.appendChild(iconButton("✏️", "Modifier", () => {
+        openPartnerModal({
+          title: "Modifier le partenaire",
+          partner: p,
+          onConfirm: async (data) => {
+            state = await apiCall(`/partners/${p.id}`, { method: "PUT", body: JSON.stringify(data) });
+            render();
+          },
+        });
+      }));
+      actions.appendChild(iconButton("🗑️", "Supprimer", () => {
+        openConfirmModal({
+          title: `Supprimer "${p.name}" ?`,
+          onConfirm: async () => {
+            state = await apiCall(`/partners/${p.id}`, { method: "DELETE" });
+            render();
+            toast("Partenaire supprimé.");
+          },
+        });
+      }, true));
+      card.appendChild(actions);
+    }
+
+    return card;
+  }
+
+  // ---------------- Réseaux sociaux ----------------
+
+  function renderSocialsSection() {
+    els.socialsEditActions.innerHTML = "";
+    if (isEditMode()) {
+      const addBtn = document.createElement("button");
+      addBtn.className = "btn btn-dashed";
+      addBtn.textContent = "＋ Nouveau réseau";
+      addBtn.addEventListener("click", () => {
+        openSocialModal({
+          title: "Nouveau réseau",
+          onConfirm: async (data) => {
+            state = await apiCall("/socials", { method: "POST", body: JSON.stringify(data) });
+            render();
+            toast("Réseau ajouté.");
+          },
+        });
+      });
+      els.socialsEditActions.appendChild(addBtn);
+    }
+
+    els.socialsList.innerHTML = "";
+    const list = state.socials || [];
+    if (list.length === 0) {
+      els.socialsList.innerHTML = `<p class="empty-note">${isEditMode() ? "Ajoute un réseau avec le bouton ci-dessus." : "Aucun réseau pour l'instant."}</p>`;
+      return;
+    }
+    list.forEach((s) => els.socialsList.appendChild(renderSocialChip(s)));
+  }
+
+  function renderSocialChip(s) {
+    const wrap = document.createElement("div");
+    wrap.className = "social-item-wrap";
+
+    const a = document.createElement("a");
+    a.className = "social-chip";
+    a.href = s.url;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.innerHTML = `<span class="social-chip-icon">${escapeHtml(s.icon || "🔗")}</span> ${escapeHtml(s.name)}`;
+    wrap.appendChild(a);
+
+    if (isEditMode()) {
+      const actions = document.createElement("div");
+      actions.className = "social-chip-edit-actions";
+      actions.appendChild(iconButton("✏️", "Modifier", () => {
+        openSocialModal({
+          title: "Modifier le réseau",
+          social: s,
+          onConfirm: async (data) => {
+            state = await apiCall(`/socials/${s.id}`, { method: "PUT", body: JSON.stringify(data) });
+            render();
+          },
+        });
+      }, false, true));
+      actions.appendChild(iconButton("🗑️", "Supprimer", () => {
+        openConfirmModal({
+          title: `Supprimer "${s.name}" ?`,
+          onConfirm: async () => {
+            state = await apiCall(`/socials/${s.id}`, { method: "DELETE" });
+            render();
+            toast("Réseau supprimé.");
+          },
+        });
+      }, true, true));
+      wrap.appendChild(actions);
+    }
+
+    return wrap;
   }
 
   // ---------------- Menu burger ----------------
@@ -999,7 +1493,7 @@
 
   // ---------------- Navigation entre pages ----------------
 
-  const PAGE_IDS = ["accueil", "twitch", "participants", "stats"];
+  const PAGE_IDS = ["accueil", "twitch", "participants", "stats", "remerciements", "partenaires"];
 
   function showPage(pageId, { updateHash = true } = {}) {
     if (!PAGE_IDS.includes(pageId)) pageId = "accueil";
@@ -1064,6 +1558,9 @@
       state.twitch = state.twitch || { hostChannel: "" };
       state.participants = state.participants || [];
       state.mapDownloadUrl = state.mapDownloadUrl || "";
+      state.thanks = state.thanks || [];
+      state.partners = state.partners || [];
+      state.socials = state.socials || [];
       render();
       showPage(location.hash.slice(1) || "accueil", { updateHash: false });
     } catch (e) {
