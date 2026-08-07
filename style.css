@@ -522,11 +522,21 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 .modal-link-row {
   display: grid;
-  grid-template-columns: 1fr 1.4fr auto;
+  grid-template-columns: auto 1fr 1.3fr auto;
   gap: 6px;
   margin-top: 6px;
+  align-items: center;
 }
 .modal-link-row input { margin-top: 0 !important; }
+.modal-link-row select.pLinkIcon {
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 8px 4px;
+  font-size: 15px;
+  background: white;
+  font-weight: 700;
+  max-width: 46px;
+}
 .modal-stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -755,6 +765,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   margin-top: 2px;
 }
 .thanks-link:hover { background: var(--blueberry); color: white; }
+.thanks-links-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 2px; }
 .thanks-edit-actions { display: flex; justify-content: center; gap: 4px; margin-top: 2px; }
 
 /* ---------- Partenaires ---------- */
@@ -806,6 +817,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   margin-top: 2px;
 }
 .partner-link:hover { background: var(--pistachio); color: white; }
+.partner-links-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 2px; }
 .partner-edit-actions { display: flex; justify-content: center; gap: 4px; margin-top: 2px; }
 
 .socials-list {

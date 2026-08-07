@@ -56,6 +56,23 @@
     { key: "coconut", label: "Coco" },
   ];
 
+  const LINK_PLATFORMS = [
+    { key: "discord", label: "Discord", icon: "💬" },
+    { key: "instagram", label: "Instagram", icon: "📸" },
+    { key: "twitch", label: "Twitch", icon: "🎥" },
+    { key: "tiktok", label: "TikTok", icon: "🎵" },
+    { key: "youtube", label: "YouTube", icon: "▶️" },
+    { key: "twitter", label: "Twitter / X", icon: "✖️" },
+    { key: "facebook", label: "Facebook", icon: "📘" },
+    { key: "snapchat", label: "Snapchat", icon: "👻" },
+    { key: "website", label: "Site web", icon: "🌐" },
+    { key: "other", label: "Autre", icon: "🔗" },
+  ];
+
+  function platformOf(key) {
+    return LINK_PLATFORMS.find((p) => p.key === key) || LINK_PLATFORMS[LINK_PLATFORMS.length - 1];
+  }
+
   // ---------------- Auth helpers ----------------
 
   function getToken() { return localStorage.getItem(TOKEN_KEY); }
@@ -154,6 +171,66 @@
       updatePreview();
     });
     return () => current;
+  }
+
+  // Construit un éditeur de "liens" (nom + icône de plateforme + URL) réutilisable,
+  // dans `container`. Retourne { getLinks() } pour récupérer la liste saisie.
+  function buildLinksEditor(container, initialLinks) {
+    container.innerHTML = "";
+    const rows = [];
+    const optionsHtml = LINK_PLATFORMS.map((p) => `<option value="${p.key}">${p.icon} ${p.label}</option>`).join("");
+
+    function addRow(link) {
+      const row = document.createElement("div");
+      row.className = "modal-link-row";
+      row.innerHTML = `
+        <select class="pLinkIcon" title="Plateforme">${optionsHtml}</select>
+        <input type="text" class="pLinkLabel" placeholder="Nom (ex: Discord)" />
+        <input type="text" class="pLinkUrl" placeholder="https://..." />
+        <button type="button" class="btn-icon danger" title="Retirer ce lien">✕</button>
+      `;
+      const iconSelect = row.querySelector(".pLinkIcon");
+      const labelInput = row.querySelector(".pLinkLabel");
+      const urlInput = row.querySelector(".pLinkUrl");
+      const iconKey = (link && link.icon) || "other";
+      iconSelect.value = LINK_PLATFORMS.some((p) => p.key === iconKey) ? iconKey : "other";
+      labelInput.value = (link && link.label) || "";
+      urlInput.value = (link && link.url) || "";
+
+      // En changeant de plateforme, on propose automatiquement son nom si le champ
+      // est vide ou correspond encore au libellé par défaut d'une autre plateforme.
+      iconSelect.addEventListener("change", () => {
+        const trimmed = labelInput.value.trim();
+        const isDefaultLabel = !trimmed || LINK_PLATFORMS.some((p) => p.label === trimmed);
+        if (isDefaultLabel) labelInput.value = platformOf(iconSelect.value).label;
+      });
+
+      row.querySelector(".btn-icon").addEventListener("click", () => {
+        row.remove();
+        const idx = rows.indexOf(row);
+        if (idx !== -1) rows.splice(idx, 1);
+      });
+
+      container.appendChild(row);
+      rows.push(row);
+    }
+
+    (initialLinks && initialLinks.length ? initialLinks : []).forEach((l) => addRow(l));
+    if (rows.length === 0) addRow();
+
+    return {
+      addRow,
+      getLinks: () =>
+        rows
+          .filter((row) => row.isConnected)
+          .map((row) => ({
+            icon: row.querySelector(".pLinkIcon").value,
+            label: row.querySelector(".pLinkLabel").value.trim(),
+            url: row.querySelector(".pLinkUrl").value.trim(),
+          }))
+          .filter((l) => l.url)
+          .map((l) => ({ ...l, label: l.label || platformOf(l.icon).label })),
+    };
   }
 
   // ---------------- Toast ----------------
@@ -391,7 +468,6 @@
     modal.desc.hidden = true;
     modal.el.classList.add("modal-wide");
     const p = participant || { name: "", avatar: "", twitchChannel: "", links: [], stats: {} };
-    const links = p.links && p.links.length ? p.links : [{ label: "", url: "" }];
 
     modal.body.innerHTML = `
       <input type="text" id="pName" placeholder="Nom du participant" autocomplete="off" />
@@ -425,39 +501,19 @@
     document.getElementById("pBlocksWalked").value = stats.blocksWalked || 0;
     document.getElementById("pBlocksBroken").value = stats.blocksBroken || 0;
 
-    const linksRows = document.getElementById("pLinksRows");
-    function addLinkRow(link) {
-      const row = document.createElement("div");
-      row.className = "modal-link-row";
-      row.innerHTML = `
-        <input type="text" class="pLinkLabel" placeholder="Label (ex: Discord)" />
-        <input type="text" class="pLinkUrl" placeholder="https://..." />
-        <button type="button" class="btn-icon danger" title="Retirer">✕</button>
-      `;
-      row.querySelector(".pLinkLabel").value = (link && link.label) || "";
-      row.querySelector(".pLinkUrl").value = (link && link.url) || "";
-      row.querySelector(".btn-icon").addEventListener("click", () => row.remove());
-      linksRows.appendChild(row);
-    }
-    links.forEach((l) => addLinkRow(l));
-    document.getElementById("pAddLink").addEventListener("click", () => addLinkRow());
+    const linksEditor = buildLinksEditor(document.getElementById("pLinksRows"), p.links);
+    document.getElementById("pAddLink").addEventListener("click", () => linksEditor.addRow());
 
     setTimeout(() => nameInput.focus(), 30);
 
     const submit = async () => {
       const name = nameInput.value.trim();
       if (!name) { showModalError("Le nom est requis."); return; }
-      const collectedLinks = [...linksRows.querySelectorAll(".modal-link-row")]
-        .map((row) => ({
-          label: row.querySelector(".pLinkLabel").value.trim(),
-          url: row.querySelector(".pLinkUrl").value.trim(),
-        }))
-        .filter((l) => l.url);
       const data = {
         name,
         avatar: avatarInput.value.trim(),
         twitchChannel: twitchInput.value.trim(),
-        links: collectedLinks,
+        links: linksEditor.getLinks(),
         stats: {
           blocksPlaced: Number(document.getElementById("pBlocksPlaced").value) || 0,
           kills: Number(document.getElementById("pKills").value) || 0,
@@ -482,7 +538,7 @@
     modal.title.textContent = title;
     modal.desc.hidden = true;
     modal.el.classList.add("modal-wide");
-    const c = credit || { name: "", avatar: "", description: "", link: "" };
+    const c = credit || { name: "", avatar: "", description: "", links: [] };
 
     modal.body.innerHTML = `
       <input type="text" id="crName" placeholder="Nom" autocomplete="off" />
@@ -495,8 +551,9 @@
       </div>
       <p class="modal-subhead">Description</p>
       <textarea id="crDesc" class="modal-textarea" placeholder="Un petit mot pour cette personne..." rows="3"></textarea>
-      <p class="modal-subhead">Lien (optionnel)</p>
-      <input type="text" id="crLink" placeholder="https://..." autocomplete="off" />
+      <p class="modal-subhead">Liens (Discord, Insta, Twitch, site web, etc.)</p>
+      <div id="crLinksRows"></div>
+      <button type="button" class="add-inline-btn" id="crAddLink">＋ Ajouter un lien</button>
     `;
     modal.confirm.textContent = "Enregistrer";
     modal.error.hidden = true;
@@ -504,10 +561,8 @@
 
     const nameInput = document.getElementById("crName");
     const descInput = document.getElementById("crDesc");
-    const linkInput = document.getElementById("crLink");
     nameInput.value = c.name || "";
     descInput.value = c.description || "";
-    linkInput.value = c.link || "";
 
     const getAvatar = wireImageUpload({
       fileInput: document.getElementById("crAvatarFile"),
@@ -515,6 +570,9 @@
       removeBtn: document.getElementById("crAvatarRemove"),
       initialValue: c.avatar || "",
     });
+
+    const linksEditor = buildLinksEditor(document.getElementById("crLinksRows"), c.links);
+    document.getElementById("crAddLink").addEventListener("click", () => linksEditor.addRow());
 
     setTimeout(() => nameInput.focus(), 30);
 
@@ -525,7 +583,7 @@
         name,
         avatar: getAvatar(),
         description: descInput.value.trim(),
-        link: linkInput.value.trim(),
+        links: linksEditor.getLinks(),
       };
       try {
         modal.confirm.disabled = true;
@@ -544,7 +602,7 @@
     modal.title.textContent = title;
     modal.desc.hidden = true;
     modal.el.classList.add("modal-wide");
-    const p = partner || { name: "", logo: "", description: "", url: "" };
+    const p = partner || { name: "", logo: "", description: "", links: [] };
 
     modal.body.innerHTML = `
       <input type="text" id="ptName" placeholder="Nom du partenaire" autocomplete="off" />
@@ -557,8 +615,9 @@
       </div>
       <p class="modal-subhead">Description</p>
       <textarea id="ptDesc" class="modal-textarea" placeholder="Description du partenaire..." rows="3"></textarea>
-      <p class="modal-subhead">Lien (optionnel)</p>
-      <input type="text" id="ptUrl" placeholder="https://..." autocomplete="off" />
+      <p class="modal-subhead">Liens (site web, Discord, réseaux, etc.)</p>
+      <div id="ptLinksRows"></div>
+      <button type="button" class="add-inline-btn" id="ptAddLink">＋ Ajouter un lien</button>
     `;
     modal.confirm.textContent = "Enregistrer";
     modal.error.hidden = true;
@@ -566,10 +625,8 @@
 
     const nameInput = document.getElementById("ptName");
     const descInput = document.getElementById("ptDesc");
-    const urlInput = document.getElementById("ptUrl");
     nameInput.value = p.name || "";
     descInput.value = p.description || "";
-    urlInput.value = p.url || "";
 
     const getLogo = wireImageUpload({
       fileInput: document.getElementById("ptLogoFile"),
@@ -577,6 +634,9 @@
       removeBtn: document.getElementById("ptLogoRemove"),
       initialValue: p.logo || "",
     });
+
+    const linksEditor = buildLinksEditor(document.getElementById("ptLinksRows"), p.links);
+    document.getElementById("ptAddLink").addEventListener("click", () => linksEditor.addRow());
 
     setTimeout(() => nameInput.focus(), 30);
 
@@ -587,7 +647,7 @@
         name,
         logo: getLogo(),
         description: descInput.value.trim(),
-        url: urlInput.value.trim(),
+        links: linksEditor.getLinks(),
       };
       try {
         modal.confirm.disabled = true;
@@ -804,7 +864,7 @@
         a.target = "_blank";
         a.rel = "noopener";
         a.className = "participant-link-btn";
-        a.textContent = l.label || "Lien";
+        a.textContent = `${platformOf(l.icon).icon} ${l.label || platformOf(l.icon).label}`;
         linksRow.appendChild(a);
       });
       card.appendChild(linksRow);
@@ -947,14 +1007,19 @@
       card.appendChild(desc);
     }
 
-    if (c.link) {
-      const a = document.createElement("a");
-      a.className = "thanks-link";
-      a.href = c.link;
-      a.target = "_blank";
-      a.rel = "noopener";
-      a.textContent = "🔗 Voir le lien";
-      card.appendChild(a);
+    if (c.links && c.links.length > 0) {
+      const linksRow = document.createElement("div");
+      linksRow.className = "thanks-links-row";
+      c.links.forEach((l) => {
+        const a = document.createElement("a");
+        a.className = "thanks-link";
+        a.href = l.url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.textContent = `${platformOf(l.icon).icon} ${l.label || platformOf(l.icon).label}`;
+        linksRow.appendChild(a);
+      });
+      card.appendChild(linksRow);
     }
 
     if (isEditMode()) {
@@ -1046,14 +1111,19 @@
       card.appendChild(desc);
     }
 
-    if (p.url) {
-      const a = document.createElement("a");
-      a.className = "partner-link";
-      a.href = p.url;
-      a.target = "_blank";
-      a.rel = "noopener";
-      a.textContent = "🔗 Visiter";
-      card.appendChild(a);
+    if (p.links && p.links.length > 0) {
+      const linksRow = document.createElement("div");
+      linksRow.className = "partner-links-row";
+      p.links.forEach((l) => {
+        const a = document.createElement("a");
+        a.className = "partner-link";
+        a.href = l.url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.textContent = `${platformOf(l.icon).icon} ${l.label || platformOf(l.icon).label}`;
+        linksRow.appendChild(a);
+      });
+      card.appendChild(linksRow);
     }
 
     if (isEditMode()) {
