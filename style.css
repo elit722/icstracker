@@ -879,6 +879,106 @@ button { font-family: var(--font-body); cursor: pointer; }
   text-decoration: underline;
 }
 
+/* ---------- Mini lecteur Twitch flottant ---------- */
+.mini-twitch {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  width: 300px;
+  max-width: calc(100vw - 24px);
+  background: var(--cream);
+  border-radius: var(--radius-md);
+  box-shadow: 0 14px 34px -10px rgba(51,38,29,0.5);
+  overflow: hidden;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+}
+.mini-twitch[hidden] { display: none; }
+.mini-twitch-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--ink);
+  color: white;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.mini-twitch.is-dragging .mini-twitch-header { cursor: grabbing; }
+.mini-twitch-grip { opacity: 0.55; font-size: 14px; }
+.mini-twitch-title {
+  flex: 1;
+  font-weight: 800;
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mini-twitch-close {
+  background: none;
+  border: none;
+  color: white;
+  opacity: 0.8;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+.mini-twitch-close:hover { opacity: 1; }
+.mini-twitch-body {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+.mini-twitch-body iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+.mini-twitch-visit {
+  display: block;
+  text-align: center;
+  padding: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  background: var(--blueberry-tint);
+  color: var(--blueberry-dark);
+  text-decoration: none;
+}
+.mini-twitch-visit:hover { background: var(--blueberry); color: white; }
+
+.mini-twitch-reopen {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: var(--cherry);
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 10px 24px -8px rgba(51,38,29,0.5);
+  cursor: pointer;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mini-twitch-reopen[hidden] { display: none; }
+.mini-twitch-reopen:hover { filter: brightness(1.08); }
+
+@media (max-width: 560px) {
+  .mini-twitch { width: 260px; }
+}
+
 /* ---------- Toast ---------- */
 .toast {
   position: fixed;

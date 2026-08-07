@@ -144,6 +144,20 @@
 
 <div class="toast" id="toast" hidden></div>
 
+<div class="mini-twitch" id="miniTwitch" hidden>
+  <div class="mini-twitch-header" id="miniTwitchHeader">
+    <span class="mini-twitch-grip" aria-hidden="true">⠿</span>
+    <span class="mini-twitch-title">🔴 Rexi en direct</span>
+    <button type="button" class="mini-twitch-close" id="miniTwitchClose" aria-label="Fermer le mini lecteur">✕</button>
+  </div>
+  <div class="mini-twitch-body">
+    <iframe id="miniTwitchFrame" title="Twitch de Rexi" allowfullscreen scrolling="no"></iframe>
+  </div>
+  <a class="mini-twitch-visit" href="https://www.twitch.tv/rexi_de_la_mort" target="_blank" rel="noopener">▶️ Voir sur Twitch</a>
+</div>
+
+<button type="button" class="mini-twitch-reopen" id="miniTwitchReopen" hidden title="Rouvrir le mini lecteur Twitch de Rexi" aria-label="Rouvrir le mini lecteur Twitch de Rexi">🔴</button>
+
 <script src="app.js"></script>
 </body>
 </html>

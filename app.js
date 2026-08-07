@@ -41,6 +41,11 @@
     partnersEditActions: document.getElementById("partnersEditActions"),
     socialsList: document.getElementById("socialsList"),
     socialsEditActions: document.getElementById("socialsEditActions"),
+    miniTwitch: document.getElementById("miniTwitch"),
+    miniTwitchHeader: document.getElementById("miniTwitchHeader"),
+    miniTwitchClose: document.getElementById("miniTwitchClose"),
+    miniTwitchFrame: document.getElementById("miniTwitchFrame"),
+    miniTwitchReopen: document.getElementById("miniTwitchReopen"),
   };
 
   const FLAVORS = [
@@ -775,9 +780,9 @@
 
   // ---------------- Twitch ----------------
 
-  function twitchEmbedUrl(channel) {
+  function twitchEmbedUrl(channel, { autoplay = false } = {}) {
     const parentParams = EMBED_PARENTS.map((p) => `parent=${encodeURIComponent(p)}`).join("&");
-    return `https://player.twitch.tv/?channel=${encodeURIComponent(channel)}&${parentParams}&muted=true&autoplay=false`;
+    return `https://player.twitch.tv/?channel=${encodeURIComponent(channel)}&${parentParams}&muted=true&autoplay=${autoplay}`;
   }
 
   function renderTwitchSection() {
@@ -1516,6 +1521,114 @@
     return div.innerHTML;
   }
 
+  // ---------------- Mini lecteur Twitch flottant (Rexi) ----------------
+
+  const MINI_TWITCH_CHANNEL = "rexi_de_la_mort";
+  const MINI_TWITCH_POS_KEY = "ics_mini_twitch_pos";
+  const MINI_TWITCH_OPEN_KEY = "ics_mini_twitch_open";
+
+  function initMiniTwitch() {
+    const { miniTwitch, miniTwitchHeader, miniTwitchClose, miniTwitchFrame, miniTwitchReopen } = els;
+    if (!miniTwitch || !miniTwitchFrame) return;
+
+    miniTwitchFrame.src = twitchEmbedUrl(MINI_TWITCH_CHANNEL, { autoplay: true });
+
+    // Ouvert par défaut, sauf si l'utilisateur l'a explicitement fermé.
+    const openPref = localStorage.getItem(MINI_TWITCH_OPEN_KEY);
+    if (openPref === "0") {
+      miniTwitch.hidden = true;
+      miniTwitchReopen.hidden = false;
+    } else {
+      miniTwitch.hidden = false;
+      miniTwitchReopen.hidden = true;
+    }
+
+    // Position sauvegardée (drag précédent) → sinon reste ancré en bas à gauche par défaut (CSS).
+    try {
+      const saved = JSON.parse(localStorage.getItem(MINI_TWITCH_POS_KEY) || "null");
+      if (saved && Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
+        applyMiniTwitchPos(saved.left, saved.top);
+      }
+    } catch { /* ignore */ }
+
+    miniTwitchClose.addEventListener("click", () => {
+      miniTwitch.hidden = true;
+      miniTwitchReopen.hidden = false;
+      localStorage.setItem(MINI_TWITCH_OPEN_KEY, "0");
+    });
+
+    miniTwitchReopen.addEventListener("click", () => {
+      miniTwitch.hidden = false;
+      miniTwitchReopen.hidden = true;
+      localStorage.setItem(MINI_TWITCH_OPEN_KEY, "1");
+    });
+
+    wireMiniTwitchDrag(miniTwitch, miniTwitchHeader);
+  }
+
+  function applyMiniTwitchPos(left, top) {
+    const el = els.miniTwitch;
+    const maxLeft = Math.max(4, window.innerWidth - el.offsetWidth - 4);
+    const maxTop = Math.max(4, window.innerHeight - el.offsetHeight - 4);
+    el.style.left = `${Math.min(Math.max(4, left), maxLeft)}px`;
+    el.style.top = `${Math.min(Math.max(4, top), maxTop)}px`;
+    el.style.right = "auto";
+    el.style.bottom = "auto";
+  }
+
+  function wireMiniTwitchDrag(el, handle) {
+    let dragging = false;
+    let startX = 0, startY = 0, startLeft = 0, startTop = 0;
+
+    handle.addEventListener("pointerdown", (e) => {
+      if (e.button !== undefined && e.button !== 0) return;
+      dragging = true;
+      const rect = el.getBoundingClientRect();
+      startLeft = rect.left;
+      startTop = rect.top;
+      startX = e.clientX;
+      startY = e.clientY;
+      el.style.left = `${startLeft}px`;
+      el.style.top = `${startTop}px`;
+      el.style.right = "auto";
+      el.style.bottom = "auto";
+      el.classList.add("is-dragging");
+      handle.setPointerCapture(e.pointerId);
+    });
+
+    handle.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const maxLeft = Math.max(4, window.innerWidth - el.offsetWidth - 4);
+      const maxTop = Math.max(4, window.innerHeight - el.offsetHeight - 4);
+      const left = Math.min(Math.max(4, startLeft + dx), maxLeft);
+      const top = Math.min(Math.max(4, startTop + dy), maxTop);
+      el.style.left = `${left}px`;
+      el.style.top = `${top}px`;
+    });
+
+    const endDrag = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove("is-dragging");
+      try { handle.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+      const left = parseFloat(el.style.left);
+      const top = parseFloat(el.style.top);
+      if (Number.isFinite(left) && Number.isFinite(top)) {
+        localStorage.setItem(MINI_TWITCH_POS_KEY, JSON.stringify({ left, top }));
+      }
+    };
+    handle.addEventListener("pointerup", endDrag);
+    handle.addEventListener("pointercancel", endDrag);
+  }
+
+  window.addEventListener("resize", () => {
+    if (els.miniTwitch && !els.miniTwitch.hidden && els.miniTwitch.style.left) {
+      applyMiniTwitchPos(parseFloat(els.miniTwitch.style.left), parseFloat(els.miniTwitch.style.top));
+    }
+  });
+
   // ---------------- Wiring ----------------
 
   els.unlockBtn.addEventListener("click", () => {
@@ -1638,5 +1751,6 @@
     }
   }
 
+  initMiniTwitch();
   init();
 })();
