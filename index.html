@@ -39,6 +39,8 @@
         <button type="button" class="burger-item burger-item-btn burger-nav" data-page="twitch">📺 Le Twitch</button>
         <button type="button" class="burger-item burger-item-btn burger-nav" data-page="participants">🧑‍🤝‍🧑 Les Participants</button>
         <button type="button" class="burger-item burger-item-btn burger-nav" data-page="stats">📊 Statistique des participants</button>
+        <button type="button" class="burger-item burger-item-btn burger-nav" data-page="remerciements">🙏 Remerciements</button>
+        <button type="button" class="burger-item burger-item-btn burger-nav" data-page="partenaires">🤝 Partenaires &amp; Réseaux</button>
         <hr class="burger-sep">
         <div class="burger-item-row">
           <a id="mapDownloadLink" class="burger-item" href="#" target="_blank" rel="noopener">🗺️ Download Map</a>
@@ -95,6 +97,29 @@
       <h2>📊 Statistique des participants</h2>
     </div>
     <div id="statsTableWrap"></div>
+  </section>
+
+  <section id="page-remerciements" class="page-section" data-page="remerciements">
+    <div class="section-head">
+      <h2>🙏 Remerciements</h2>
+      <div class="section-actions" id="thanksEditActions"></div>
+    </div>
+    <p class="page-intro">Un grand merci aux personnes qui ont rendu cette aventure possible.</p>
+    <div id="thanksGrid" class="thanks-grid"></div>
+  </section>
+
+  <section id="page-partenaires" class="page-section" data-page="partenaires">
+    <div class="section-head">
+      <h2>🤝 Partenaires</h2>
+      <div class="section-actions" id="partnersEditActions"></div>
+    </div>
+    <div id="partnersGrid" class="partners-grid"></div>
+
+    <div class="section-head section-head-spaced">
+      <h2>🔗 Réseaux</h2>
+      <div class="section-actions" id="socialsEditActions"></div>
+    </div>
+    <div id="socialsList" class="socials-list"></div>
   </section>
 
 </main>
