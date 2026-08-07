@@ -792,15 +792,19 @@
     if (uniq.length === 0) return;
     try {
       const res = await fetch(`${API}/twitch/status?channels=${encodeURIComponent(uniq.join(","))}`);
-      if (!res.ok) return;
+      if (!res.ok) throw new Error(`status ${res.status}`);
       const data = await res.json();
       twitchStatus = { ...twitchStatus, ...data };
-      renderTwitchSection();
-      renderParticipantsSection();
     } catch (e) {
-      // Silencieux : en cas d'échec (API indisponible, secrets Twitch non configurés…)
-      // on retombe simplement sur l'affichage du lecteur en direct par défaut.
+      // API de statut indisponible (Worker pas encore redéployé, secrets Twitch manquants…) :
+      // on retombe sur le lecteur en direct par défaut plutôt que de rester bloqué sur "Chargement…".
+      console.warn("Statut Twitch indisponible, retour au lecteur par défaut :", e.message);
+      uniq.forEach((c) => {
+        if (!twitchStatus[c]) twitchStatus[c] = { live: true };
+      });
     }
+    renderTwitchSection();
+    renderParticipantsSection();
   }
 
   function allTwitchChannels() {
@@ -810,18 +814,25 @@
   }
 
   // Construit le bloc HTML d'une intégration Twitch : lecteur en direct si la chaîne
-  // est live, sinon bannière de la chaîne (récupérée via Twitch) si on la connaît,
-  // sinon un simple encart "hors ligne".
+  // est live, bannière si elle est hors ligne, ou un état de chargement neutre tant que
+  // le statut n'est pas encore connu (on évite ainsi de laisser apparaître, même
+  // brièvement, l'écran "hors ligne" natif du lecteur Twitch).
   function twitchEmbedBlock(channel, { small = false } = {}) {
     const status = twitchStatus[channel.toLowerCase()];
     const wrapClass = "twitch-embed-wrap" + (small ? " twitch-embed-wrap-sm" : "");
-    if (status && status.live === false) {
+
+    if (!status) {
+      return `<div class="${wrapClass} twitch-embed-loading"><div class="twitch-offline-fallback">Chargement…</div></div>`;
+    }
+
+    if (status.live === false) {
       const bannerUrl = status.offlineBanner || status.avatar || "";
       const banner = bannerUrl
         ? `<img class="twitch-offline-banner" src="${escapeHtml(bannerUrl)}" alt="" onerror="this.remove()" />`
         : `<div class="twitch-offline-fallback">Actuellement hors ligne</div>`;
       return `<div class="${wrapClass}">${banner}<span class="twitch-offline-badge">Hors ligne</span></div>`;
     }
+
     return `<div class="${wrapClass}"><iframe src="${twitchEmbedUrl(channel)}" allowfullscreen scrolling="no"></iframe></div>`;
   }
 

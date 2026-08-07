@@ -696,6 +696,11 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-radius: 50%;
   background: #ff5a5a;
 }
+.twitch-embed-loading .twitch-offline-fallback {
+  background: var(--ink);
+  font-weight: 600;
+  opacity: 0.8;
+}
 
 /* ---------- Participants ---------- */
 .participants-grid {
