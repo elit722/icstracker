@@ -809,7 +809,6 @@
         setTimeout(() => refreshTwitchStatus(uniq), 15000);
       }
     }
-    renderTwitchSection();
     renderParticipantsSection();
   }
 
