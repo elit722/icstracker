@@ -780,7 +780,7 @@
 
   // ---------------- Twitch ----------------
 
-  function twitchEmbedUrl(channel, { autoplay = false } = {}) {
+  function twitchEmbedUrl(channel, { autoplay = true } = {}) {
     const parentParams = EMBED_PARENTS.map((p) => `parent=${encodeURIComponent(p)}`).join("&");
     return `https://player.twitch.tv/?channel=${encodeURIComponent(channel)}&${parentParams}&muted=true&autoplay=${autoplay}`;
   }
@@ -816,8 +816,9 @@
     const status = twitchStatus[channel.toLowerCase()];
     const wrapClass = "twitch-embed-wrap" + (small ? " twitch-embed-wrap-sm" : "");
     if (status && status.live === false) {
-      const banner = status.offlineBanner
-        ? `<img class="twitch-offline-banner" src="${escapeHtml(status.offlineBanner)}" alt="" onerror="this.remove()" />`
+      const bannerUrl = status.offlineBanner || status.avatar || "";
+      const banner = bannerUrl
+        ? `<img class="twitch-offline-banner" src="${escapeHtml(bannerUrl)}" alt="" onerror="this.remove()" />`
         : `<div class="twitch-offline-fallback">Actuellement hors ligne</div>`;
       return `<div class="${wrapClass}">${banner}<span class="twitch-offline-badge">Hors ligne</span></div>`;
     }
