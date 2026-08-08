@@ -6,11 +6,15 @@
 <title>Ice Cream Survival — Suivi d'aventure</title>
 <script>
   // Applique le thème sauvegardé le plus tôt possible pour éviter un flash
-  // de thème clair avant que app.js ne s'exécute.
+  // de thème par défaut avant que app.js ne s'exécute.
+  // Migration : les anciennes valeurs "clair"/"sombre" sont mappées vers
+  // les nouveaux noms "quartz"/"netherite".
   (function () {
     try {
       var t = localStorage.getItem("ics_theme");
-      if (t && t !== "clair") document.documentElement.setAttribute("data-theme", t);
+      if (t === "clair") t = "quartz";
+      if (t === "sombre") t = "netherite";
+      if (t && t !== "quartz") document.documentElement.setAttribute("data-theme", t);
     } catch (e) {}
   })();
 </script>
@@ -48,11 +52,15 @@
         <div class="burger-item burger-theme-row">
           <label for="themeSelect" class="burger-theme-label">🎨 Thème</label>
           <select id="themeSelect" class="theme-select">
-            <option value="clair">Clair</option>
-            <option value="sombre">Sombre</option>
+            <option value="quartz">Quartz</option>
+            <option value="netherite">Netherite</option>
             <option value="emerald">Emerald</option>
             <option value="lapiz">Lapiz</option>
             <option value="redstone">Redstone</option>
+            <option value="obsidian">Obsidian</option>
+            <option value="gold">Gold</option>
+            <option value="copper">Copper</option>
+            <option value="diamond">Diamond</option>
           </select>
         </div>
         <hr class="burger-sep">

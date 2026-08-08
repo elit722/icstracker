@@ -81,8 +81,8 @@
    restent identiques pour garder les repères visuels.
    ========================================================= */
 
-/* ---------- Sombre ---------- */
-:root[data-theme="sombre"] {
+/* ---------- Netherite ---------- */
+:root[data-theme="netherite"] {
   --bg-top: #1b2027;
   --bg-bottom: #12151a;
   --cream: #232833;
@@ -106,14 +106,14 @@
 
 /* ---------- Emerald (couleurs de la bannière du RE) ---------- */
 :root[data-theme="emerald"] {
-  --bg-top: #0c3a32;
-  --bg-bottom: #082922;
-  --cream: #123f36;
-  --cream-dim: #0e332b;
+  --bg-top: #0a322b;
+  --bg-bottom: #062019;
+  --cream: #0f342c;
+  --cream-dim: #0b2a23;
   --ink: #eafff4;
   --ink-soft: #9fd9c3;
-  --line: #1f5c4d;
-  --panel-dark: #04211b;
+  --line: #1b5245;
+  --panel-dark: #031a15;
 
   --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
   --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
@@ -160,6 +160,98 @@
   --ink-soft: #dcaa7d;
   --line: #5d2419;
   --panel-dark: #170603;
+
+  --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
+  --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
+  --pistachio-ink: color-mix(in srgb, var(--pistachio) 60%, white);
+  --lemon-ink: color-mix(in srgb, var(--lemon) 60%, white);
+  --mint-ink: color-mix(in srgb, var(--mint) 60%, white);
+  --chocolate-ink: color-mix(in srgb, var(--chocolate) 60%, white);
+  --strawberry-ink: color-mix(in srgb, var(--strawberry) 60%, white);
+  --caramel-ink: color-mix(in srgb, var(--caramel) 60%, white);
+  --grape-ink: color-mix(in srgb, var(--grape) 60%, white);
+  --coconut-ink: color-mix(in srgb, var(--coconut) 60%, white);
+}
+
+/* ---------- Obsidian (violet-noir profond) ---------- */
+:root[data-theme="obsidian"] {
+  --bg-top: #170a21;
+  --bg-bottom: #0b0512;
+  --cream: #1e0f2b;
+  --cream-dim: #170b21;
+  --ink: #ece2fb;
+  --ink-soft: #a68fc9;
+  --line: #392353;
+  --panel-dark: #050208;
+
+  --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
+  --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
+  --pistachio-ink: color-mix(in srgb, var(--pistachio) 60%, white);
+  --lemon-ink: color-mix(in srgb, var(--lemon) 60%, white);
+  --mint-ink: color-mix(in srgb, var(--mint) 60%, white);
+  --chocolate-ink: color-mix(in srgb, var(--chocolate) 60%, white);
+  --strawberry-ink: color-mix(in srgb, var(--strawberry) 60%, white);
+  --caramel-ink: color-mix(in srgb, var(--caramel) 60%, white);
+  --grape-ink: color-mix(in srgb, var(--grape) 60%, white);
+  --coconut-ink: color-mix(in srgb, var(--coconut) 60%, white);
+}
+
+/* ---------- Gold (minerai d'or) ---------- */
+:root[data-theme="gold"] {
+  --bg-top: #3a2f0c;
+  --bg-bottom: #241d08;
+  --cream: #493c12;
+  --cream-dim: #362b0d;
+  --ink: #fff3d1;
+  --ink-soft: #d9c37e;
+  --line: #6b551c;
+  --panel-dark: #191405;
+
+  --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
+  --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
+  --pistachio-ink: color-mix(in srgb, var(--pistachio) 60%, white);
+  --lemon-ink: color-mix(in srgb, var(--lemon) 60%, white);
+  --mint-ink: color-mix(in srgb, var(--mint) 60%, white);
+  --chocolate-ink: color-mix(in srgb, var(--chocolate) 60%, white);
+  --strawberry-ink: color-mix(in srgb, var(--strawberry) 60%, white);
+  --caramel-ink: color-mix(in srgb, var(--caramel) 60%, white);
+  --grape-ink: color-mix(in srgb, var(--grape) 60%, white);
+  --coconut-ink: color-mix(in srgb, var(--coconut) 60%, white);
+}
+
+/* ---------- Copper (minerai de cuivre) ---------- */
+:root[data-theme="copper"] {
+  --bg-top: #3d2013;
+  --bg-bottom: #24120a;
+  --cream: #4a2818;
+  --cream-dim: #391f12;
+  --ink: #ffe3cf;
+  --ink-soft: #dba989;
+  --line: #6b3a22;
+  --panel-dark: #190d07;
+
+  --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
+  --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
+  --pistachio-ink: color-mix(in srgb, var(--pistachio) 60%, white);
+  --lemon-ink: color-mix(in srgb, var(--lemon) 60%, white);
+  --mint-ink: color-mix(in srgb, var(--mint) 60%, white);
+  --chocolate-ink: color-mix(in srgb, var(--chocolate) 60%, white);
+  --strawberry-ink: color-mix(in srgb, var(--strawberry) 60%, white);
+  --caramel-ink: color-mix(in srgb, var(--caramel) 60%, white);
+  --grape-ink: color-mix(in srgb, var(--grape) 60%, white);
+  --coconut-ink: color-mix(in srgb, var(--coconut) 60%, white);
+}
+
+/* ---------- Diamond (minerai de diamant) ---------- */
+:root[data-theme="diamond"] {
+  --bg-top: #0a2a33;
+  --bg-bottom: #051a20;
+  --cream: #0f333d;
+  --cream-dim: #0b2830;
+  --ink: #dafeff;
+  --ink-soft: #8fd9e6;
+  --line: #1c5866;
+  --panel-dark: #03151a;
 
   --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
   --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);

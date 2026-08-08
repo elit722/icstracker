@@ -88,16 +88,19 @@
 
   // ---------------- Thème visuel ----------------
 
-  const THEMES = ["clair", "sombre", "emerald", "lapiz", "redstone"];
+  const THEMES = ["quartz", "netherite", "emerald", "lapiz", "redstone", "obsidian", "gold", "copper", "diamond"];
+  const THEME_MIGRATIONS = { clair: "quartz", sombre: "netherite" };
 
   function getSavedTheme() {
-    const t = localStorage.getItem(THEME_KEY);
-    return THEMES.includes(t) ? t : "clair";
+    let t = localStorage.getItem(THEME_KEY);
+    if (THEME_MIGRATIONS[t]) t = THEME_MIGRATIONS[t];
+    return THEMES.includes(t) ? t : "quartz";
   }
 
   function applyTheme(theme) {
-    if (!THEMES.includes(theme)) theme = "clair";
-    if (theme === "clair") {
+    if (THEME_MIGRATIONS[theme]) theme = THEME_MIGRATIONS[theme];
+    if (!THEMES.includes(theme)) theme = "quartz";
+    if (theme === "quartz") {
       document.documentElement.removeAttribute("data-theme");
     } else {
       document.documentElement.setAttribute("data-theme", theme);
