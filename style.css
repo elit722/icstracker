@@ -11,45 +11,59 @@
   --ink-soft: #6b5a4d;
   --line: #ecdfc8;
 
+  /* Fond toujours sombre (lecteur Twitch, toast) — indépendant de --ink,
+     qui lui sert de couleur de texte et s'inverse en thèmes sombres. */
+  --panel-dark: #33261d;
+
   --blueberry: #4c6ef5;
   --blueberry-dark: #3347c9;
-  --blueberry-tint: #e7ecff;
+  --blueberry-tint: color-mix(in srgb, var(--blueberry) 16%, var(--cream));
+  --blueberry-ink: var(--blueberry-dark);
 
   --cherry: #ff4c61;
   --cherry-dark: #d4293f;
-  --cherry-tint: #ffe7ea;
+  --cherry-tint: color-mix(in srgb, var(--cherry) 16%, var(--cream));
+  --cherry-ink: var(--cherry-dark);
 
   --pistachio: #3fa972;
   --pistachio-dark: #2c8058;
-  --pistachio-tint: #e2f7ec;
+  --pistachio-tint: color-mix(in srgb, var(--pistachio) 16%, var(--cream));
+  --pistachio-ink: var(--pistachio-dark);
 
   --lemon: #ffc93c;
   --lemon-dark: #cf9c12;
-  --lemon-tint: #fff6dc;
+  --lemon-tint: color-mix(in srgb, var(--lemon) 16%, var(--cream));
+  --lemon-ink: var(--lemon-dark);
 
   --mint: #2fcf9a;
   --mint-dark: #1f9d78;
-  --mint-tint: #e0faf1;
+  --mint-tint: color-mix(in srgb, var(--mint) 16%, var(--cream));
+  --mint-ink: var(--mint-dark);
 
   --chocolate: #8a5a3b;
   --chocolate-dark: #6b4025;
-  --chocolate-tint: #f1e4d9;
+  --chocolate-tint: color-mix(in srgb, var(--chocolate) 16%, var(--cream));
+  --chocolate-ink: var(--chocolate-dark);
 
   --strawberry: #ff6f91;
   --strawberry-dark: #d94670;
-  --strawberry-tint: #ffe4ec;
+  --strawberry-tint: color-mix(in srgb, var(--strawberry) 16%, var(--cream));
+  --strawberry-ink: var(--strawberry-dark);
 
   --caramel: #e2933f;
   --caramel-dark: #b56c1f;
-  --caramel-tint: #fcebd6;
+  --caramel-tint: color-mix(in srgb, var(--caramel) 16%, var(--cream));
+  --caramel-ink: var(--caramel-dark);
 
   --grape: #9b5de5;
   --grape-dark: #7c3aed;
-  --grape-tint: #f1e6fd;
+  --grape-tint: color-mix(in srgb, var(--grape) 16%, var(--cream));
+  --grape-ink: var(--grape-dark);
 
   --coconut: #6fb3c9;
   --coconut-dark: #3f8aa1;
-  --coconut-tint: #e6f5f9;
+  --coconut-tint: color-mix(in srgb, var(--coconut) 16%, var(--cream));
+  --coconut-ink: var(--coconut-dark);
 
   --radius-lg: 26px;
   --radius-md: 18px;
@@ -76,6 +90,18 @@
   --ink: #eef1f5;
   --ink-soft: #a7afbc;
   --line: #333a46;
+  --panel-dark: #05070a;
+
+  --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
+  --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
+  --pistachio-ink: color-mix(in srgb, var(--pistachio) 60%, white);
+  --lemon-ink: color-mix(in srgb, var(--lemon) 60%, white);
+  --mint-ink: color-mix(in srgb, var(--mint) 60%, white);
+  --chocolate-ink: color-mix(in srgb, var(--chocolate) 60%, white);
+  --strawberry-ink: color-mix(in srgb, var(--strawberry) 60%, white);
+  --caramel-ink: color-mix(in srgb, var(--caramel) 60%, white);
+  --grape-ink: color-mix(in srgb, var(--grape) 60%, white);
+  --coconut-ink: color-mix(in srgb, var(--coconut) 60%, white);
 }
 
 /* ---------- Emerald (couleurs de la bannière du RE) ---------- */
@@ -87,6 +113,18 @@
   --ink: #eafff4;
   --ink-soft: #9fd9c3;
   --line: #1f5c4d;
+  --panel-dark: #04211b;
+
+  --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
+  --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
+  --pistachio-ink: color-mix(in srgb, var(--pistachio) 60%, white);
+  --lemon-ink: color-mix(in srgb, var(--lemon) 60%, white);
+  --mint-ink: color-mix(in srgb, var(--mint) 60%, white);
+  --chocolate-ink: color-mix(in srgb, var(--chocolate) 60%, white);
+  --strawberry-ink: color-mix(in srgb, var(--strawberry) 60%, white);
+  --caramel-ink: color-mix(in srgb, var(--caramel) 60%, white);
+  --grape-ink: color-mix(in srgb, var(--grape) 60%, white);
+  --coconut-ink: color-mix(in srgb, var(--coconut) 60%, white);
 }
 
 /* ---------- Lapiz (tons violet-bleuté) ---------- */
@@ -98,6 +136,18 @@
   --ink: #ecebfc;
   --ink-soft: #a8a4da;
   --line: #35377c;
+  --panel-dark: #0a0b1f;
+
+  --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
+  --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
+  --pistachio-ink: color-mix(in srgb, var(--pistachio) 60%, white);
+  --lemon-ink: color-mix(in srgb, var(--lemon) 60%, white);
+  --mint-ink: color-mix(in srgb, var(--mint) 60%, white);
+  --chocolate-ink: color-mix(in srgb, var(--chocolate) 60%, white);
+  --strawberry-ink: color-mix(in srgb, var(--strawberry) 60%, white);
+  --caramel-ink: color-mix(in srgb, var(--caramel) 60%, white);
+  --grape-ink: color-mix(in srgb, var(--grape) 60%, white);
+  --coconut-ink: color-mix(in srgb, var(--coconut) 60%, white);
 }
 
 /* ---------- Redstone (couleurs de la bannière Emerarudo Senso) ---------- */
@@ -109,6 +159,18 @@
   --ink: #ffead0;
   --ink-soft: #dcaa7d;
   --line: #5d2419;
+  --panel-dark: #170603;
+
+  --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
+  --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
+  --pistachio-ink: color-mix(in srgb, var(--pistachio) 60%, white);
+  --lemon-ink: color-mix(in srgb, var(--lemon) 60%, white);
+  --mint-ink: color-mix(in srgb, var(--mint) 60%, white);
+  --chocolate-ink: color-mix(in srgb, var(--chocolate) 60%, white);
+  --strawberry-ink: color-mix(in srgb, var(--strawberry) 60%, white);
+  --caramel-ink: color-mix(in srgb, var(--caramel) 60%, white);
+  --grape-ink: color-mix(in srgb, var(--grape) 60%, white);
+  --coconut-ink: color-mix(in srgb, var(--coconut) 60%, white);
 }
 
 * { box-sizing: border-box; }
@@ -194,7 +256,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   border: 2px solid var(--line);
 }
 .btn-ghost:hover { box-shadow: var(--shadow-soft); }
-.btn-ghost.unlocked { background: var(--pistachio-tint); border-color: var(--pistachio); color: var(--pistachio-dark); }
+.btn-ghost.unlocked { background: var(--pistachio-tint); border-color: var(--pistachio); color: var(--pistachio-ink); }
 .btn-primary {
   background: var(--blueberry);
   color: white;
@@ -224,7 +286,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-size: 15px;
 }
 .btn-icon:hover { background: rgba(51,38,29,0.08); color: var(--ink); }
-.btn-icon.danger:hover { background: var(--cherry-tint); color: var(--cherry-dark); }
+.btn-icon.danger:hover { background: var(--cherry-tint); color: var(--cherry-ink); }
 /* Comme pour .modal-overlay et .burger-menu : sans cette règle, "display: inline-flex"
    ci-dessus l'emporte sur [hidden] et le bouton reste visible même caché en JS. */
 .btn-icon[hidden] { display: none; }
@@ -254,7 +316,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 .scoopbar-fill {
   height: 100%;
   border-radius: 999px;
-  background-image: linear-gradient(90deg, var(--flavor, var(--blueberry)), var(--flavor-dark, var(--blueberry-dark)));
+  background-image: linear-gradient(90deg, var(--flavor, var(--blueberry)), var(--flavor-dark, var(--blueberry-ink)));
   background-size: 100% 100%;
   transition: width 0.5s cubic-bezier(.2,.8,.2,1);
   min-width: 0;
@@ -313,19 +375,19 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 .category {
   --flavor: var(--blueberry);
-  --flavor-dark: var(--blueberry-dark);
+  --flavor-dark: var(--blueberry-ink);
   --flavor-tint: var(--blueberry-tint);
 }
-.category.flavor-cherry     { --flavor: var(--cherry);     --flavor-dark: var(--cherry-dark);     --flavor-tint: var(--cherry-tint); }
-.category.flavor-pistachio  { --flavor: var(--pistachio);  --flavor-dark: var(--pistachio-dark);  --flavor-tint: var(--pistachio-tint); }
-.category.flavor-lemon      { --flavor: var(--lemon);      --flavor-dark: var(--lemon-dark);      --flavor-tint: var(--lemon-tint); }
-.category.flavor-blueberry  { --flavor: var(--blueberry);  --flavor-dark: var(--blueberry-dark);  --flavor-tint: var(--blueberry-tint); }
-.category.flavor-mint       { --flavor: var(--mint);       --flavor-dark: var(--mint-dark);       --flavor-tint: var(--mint-tint); }
-.category.flavor-chocolate  { --flavor: var(--chocolate);  --flavor-dark: var(--chocolate-dark);  --flavor-tint: var(--chocolate-tint); }
-.category.flavor-strawberry { --flavor: var(--strawberry); --flavor-dark: var(--strawberry-dark); --flavor-tint: var(--strawberry-tint); }
-.category.flavor-caramel    { --flavor: var(--caramel);    --flavor-dark: var(--caramel-dark);    --flavor-tint: var(--caramel-tint); }
-.category.flavor-grape      { --flavor: var(--grape);      --flavor-dark: var(--grape-dark);      --flavor-tint: var(--grape-tint); }
-.category.flavor-coconut    { --flavor: var(--coconut);    --flavor-dark: var(--coconut-dark);    --flavor-tint: var(--coconut-tint); }
+.category.flavor-cherry     { --flavor: var(--cherry);     --flavor-dark: var(--cherry-ink);     --flavor-tint: var(--cherry-tint); }
+.category.flavor-pistachio  { --flavor: var(--pistachio);  --flavor-dark: var(--pistachio-ink);  --flavor-tint: var(--pistachio-tint); }
+.category.flavor-lemon      { --flavor: var(--lemon);      --flavor-dark: var(--lemon-ink);      --flavor-tint: var(--lemon-tint); }
+.category.flavor-blueberry  { --flavor: var(--blueberry);  --flavor-dark: var(--blueberry-ink);  --flavor-tint: var(--blueberry-tint); }
+.category.flavor-mint       { --flavor: var(--mint);       --flavor-dark: var(--mint-ink);       --flavor-tint: var(--mint-tint); }
+.category.flavor-chocolate  { --flavor: var(--chocolate);  --flavor-dark: var(--chocolate-ink);  --flavor-tint: var(--chocolate-tint); }
+.category.flavor-strawberry { --flavor: var(--strawberry); --flavor-dark: var(--strawberry-ink); --flavor-tint: var(--strawberry-tint); }
+.category.flavor-caramel    { --flavor: var(--caramel);    --flavor-dark: var(--caramel-ink);    --flavor-tint: var(--caramel-tint); }
+.category.flavor-grape      { --flavor: var(--grape);      --flavor-dark: var(--grape-ink);      --flavor-tint: var(--grape-tint); }
+.category.flavor-coconut    { --flavor: var(--coconut);    --flavor-dark: var(--coconut-ink);    --flavor-tint: var(--coconut-tint); }
 
 .category-head {
   display: flex;
@@ -548,7 +610,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 700;
-  background: white;
+  background: var(--cream-dim);
   margin-top: 6px;
 }
 .modal input:focus { outline: none; border-color: var(--blueberry); }
@@ -560,14 +622,14 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-family: var(--font-body);
   font-size: 14.5px;
   font-weight: 600;
-  background: white;
+  background: var(--cream-dim);
   resize: vertical;
   min-height: 64px;
 }
 .modal-textarea:focus { outline: none; border-color: var(--blueberry); }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 .modal-error {
-  color: var(--cherry-dark);
+  color: var(--cherry-ink);
   font-weight: 800;
   font-size: 13px;
   margin: 12px 0 0;
@@ -607,7 +669,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-radius: var(--radius-sm);
   padding: 8px 4px;
   font-size: 15px;
-  background: white;
+  background: var(--cream-dim);
   font-weight: 700;
   max-width: 46px;
 }
@@ -683,7 +745,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   cursor: pointer;
   font-family: inherit;
 }
-.burger-item-btn.unlocked { background: var(--pistachio-tint); color: var(--pistachio-dark); }
+.burger-item-btn.unlocked { background: var(--pistachio-tint); color: var(--pistachio-ink); }
 .burger-nav.is-current { background: var(--blueberry-tint); }
 .burger-sep { border: none; border-top: 2px solid var(--line); margin: 6px 4px; }
 
@@ -727,7 +789,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-card);
-  background: var(--ink);
+  background: var(--panel-dark);
 }
 .twitch-embed-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .twitch-embed-wrap-sm { margin-top: 10px; }
@@ -753,7 +815,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: white;
   font-weight: 700;
   font-size: 14px;
-  background: linear-gradient(135deg, var(--ink), #2a2a2a);
+  background: linear-gradient(135deg, var(--panel-dark), #2a2a2a);
 }
 .twitch-offline-badge {
   position: absolute;
@@ -777,7 +839,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   background: #ff5a5a;
 }
 .twitch-embed-loading .twitch-offline-fallback {
-  background: var(--ink);
+  background: var(--panel-dark);
   font-weight: 600;
   opacity: 0.8;
 }
@@ -810,7 +872,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 .participant-links { display: flex; flex-wrap: wrap; gap: 6px; }
 .participant-link-btn {
   background: var(--blueberry-tint);
-  color: var(--blueberry-dark);
+  color: var(--blueberry-ink);
   font-weight: 800;
   font-size: 12px;
   padding: 5px 10px;
@@ -854,7 +916,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 .stats-table th, .stats-table td { padding: 12px 14px; text-align: left; font-size: 13.5px; }
 .stats-table th {
   background: var(--blueberry-tint);
-  color: var(--blueberry-dark);
+  color: var(--blueberry-ink);
   font-weight: 800;
   font-size: 12px;
   text-transform: uppercase;
@@ -896,7 +958,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   height: 76px;
   border-radius: 50%;
   background: var(--blueberry-tint);
-  color: var(--blueberry-dark);
+  color: var(--blueberry-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -907,7 +969,7 @@ button { font-family: var(--font-body); cursor: pointer; }
 .thanks-desc { color: var(--ink-soft); font-size: 13.5px; font-weight: 600; line-height: 1.4; }
 .thanks-link {
   background: var(--blueberry-tint);
-  color: var(--blueberry-dark);
+  color: var(--blueberry-ink);
   font-weight: 800;
   font-size: 12px;
   padding: 6px 12px;
@@ -947,7 +1009,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   align-self: flex-start;
   background: none;
   border: none;
-  color: var(--cherry-dark);
+  color: var(--cherry-ink);
   font-weight: 800;
   font-size: 12px;
   cursor: pointer;
@@ -976,7 +1038,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  background: var(--ink);
+  background: var(--panel-dark);
   color: white;
   cursor: grab;
   touch-action: none;
@@ -1025,7 +1087,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-size: 12px;
   font-weight: 800;
   background: var(--blueberry-tint);
-  color: var(--blueberry-dark);
+  color: var(--blueberry-ink);
   text-decoration: none;
 }
 .mini-twitch-visit:hover { background: var(--blueberry); color: white; }
@@ -1074,7 +1136,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   bottom: 22px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--ink);
+  background: var(--panel-dark);
   color: white;
   font-weight: 700;
   font-size: 13.5px;
