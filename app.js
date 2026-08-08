@@ -471,12 +471,13 @@
     modal.title.textContent = title;
     modal.desc.hidden = true;
     modal.el.classList.add("modal-wide");
-    const p = participant || { name: "", avatar: "", twitchChannel: "", links: [] };
+    const p = participant || { name: "", avatar: "", twitchChannel: "", minecraftUuid: "", links: [] };
 
     modal.body.innerHTML = `
       <input type="text" id="pName" placeholder="Nom du participant" autocomplete="off" />
       <input type="text" id="pAvatar" placeholder="URL de la photo de profil" autocomplete="off" style="margin-top:8px;" />
       <input type="text" id="pTwitch" placeholder="Chaîne Twitch (optionnel, sans URL)" autocomplete="off" style="margin-top:8px;" />
+      <input type="text" id="pUuid" placeholder="UUID Minecraft (optionnel, pour le suivi des stats)" autocomplete="off" style="margin-top:8px;" />
       <p class="modal-subhead">Liens (Discord, réseaux, etc.)</p>
       <div id="pLinksRows"></div>
       <button type="button" class="add-inline-btn" id="pAddLink">＋ Ajouter un lien</button>
@@ -488,9 +489,11 @@
     const nameInput = document.getElementById("pName");
     const avatarInput = document.getElementById("pAvatar");
     const twitchInput = document.getElementById("pTwitch");
+    const uuidInput = document.getElementById("pUuid");
     nameInput.value = p.name || "";
     avatarInput.value = p.avatar || "";
     twitchInput.value = p.twitchChannel || "";
+    uuidInput.value = p.minecraftUuid || "";
 
     const linksEditor = buildLinksEditor(document.getElementById("pLinksRows"), p.links);
     document.getElementById("pAddLink").addEventListener("click", () => linksEditor.addRow());
@@ -504,6 +507,7 @@
         name,
         avatar: avatarInput.value.trim(),
         twitchChannel: twitchInput.value.trim(),
+        minecraftUuid: uuidInput.value.trim(),
         links: linksEditor.getLinks(),
       };
       try {
