@@ -6,6 +6,7 @@
   const WORKER_URL = "https://icstracker.refugeemeraudien-direction.workers.dev";
   const API = `${WORKER_URL}/api`;
   const TOKEN_KEY = "ics_token";
+  const THEME_KEY = "ics_theme";
 
   // ⚠️ Domaine(s) sur lesquels le site est servi — requis par les iframes Twitch
   // (paramètre "parent" obligatoire). Ajoute chaque domaine que tu utilises.
@@ -45,6 +46,7 @@
     miniTwitchClose: document.getElementById("miniTwitchClose"),
     miniTwitchFrame: document.getElementById("miniTwitchFrame"),
     miniTwitchReopen: document.getElementById("miniTwitchReopen"),
+    themeSelect: document.getElementById("themeSelect"),
   };
 
   const FLAVORS = [
@@ -83,6 +85,25 @@
   function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
   function clearToken() { localStorage.removeItem(TOKEN_KEY); }
   function isEditMode() { return !!getToken(); }
+
+  // ---------------- Thème visuel ----------------
+
+  const THEMES = ["clair", "sombre", "emerald", "lapiz", "redstone"];
+
+  function getSavedTheme() {
+    const t = localStorage.getItem(THEME_KEY);
+    return THEMES.includes(t) ? t : "clair";
+  }
+
+  function applyTheme(theme) {
+    if (!THEMES.includes(theme)) theme = "clair";
+    if (theme === "clair") {
+      document.documentElement.removeAttribute("data-theme");
+    } else {
+      document.documentElement.setAttribute("data-theme", theme);
+    }
+    localStorage.setItem(THEME_KEY, theme);
+  }
 
   function authHeaders() {
     const t = getToken();
@@ -1549,6 +1570,12 @@
     }
   });
 
+  if (els.themeSelect) {
+    els.themeSelect.addEventListener("change", () => {
+      applyTheme(els.themeSelect.value);
+    });
+  }
+
   els.mapEditBtn.addEventListener("click", () => {
     openTextModal({
       title: "Lien de téléchargement de la map",
@@ -1587,6 +1614,8 @@
       els.categories.innerHTML = `<p class="empty-note">${escapeHtml(e.message)}</p>`;
     }
   }
+
+  if (els.themeSelect) els.themeSelect.value = getSavedTheme();
 
   initMiniTwitch();
   init();

@@ -61,6 +61,56 @@
   --font-body: "Nunito", system-ui, sans-serif;
 }
 
+/* =========================================================
+   Thèmes visuels — chaque thème ne surcharge que les tokens
+   de fond/surface/texte ; les couleurs "parfum" (catégories)
+   restent identiques pour garder les repères visuels.
+   ========================================================= */
+
+/* ---------- Sombre ---------- */
+:root[data-theme="sombre"] {
+  --bg-top: #1b2027;
+  --bg-bottom: #12151a;
+  --cream: #232833;
+  --cream-dim: #1b1f28;
+  --ink: #eef1f5;
+  --ink-soft: #a7afbc;
+  --line: #333a46;
+}
+
+/* ---------- Emerald (couleurs de la bannière du RE) ---------- */
+:root[data-theme="emerald"] {
+  --bg-top: #0c3a32;
+  --bg-bottom: #082922;
+  --cream: #123f36;
+  --cream-dim: #0e332b;
+  --ink: #eafff4;
+  --ink-soft: #9fd9c3;
+  --line: #1f5c4d;
+}
+
+/* ---------- Lapiz (tons violet-bleuté) ---------- */
+:root[data-theme="lapiz"] {
+  --bg-top: #1a1c40;
+  --bg-bottom: #12132c;
+  --cream: #21234f;
+  --cream-dim: #191a3d;
+  --ink: #ecebfc;
+  --ink-soft: #a8a4da;
+  --line: #35377c;
+}
+
+/* ---------- Redstone (couleurs de la bannière Emerarudo Senso) ---------- */
+:root[data-theme="redstone"] {
+  --bg-top: #2b0f09;
+  --bg-bottom: #180704;
+  --cream: #3a150e;
+  --cream-dim: #2c100a;
+  --ink: #ffead0;
+  --ink-soft: #dcaa7d;
+  --line: #5d2419;
+}
+
 * { box-sizing: border-box; }
 
 html, body {
@@ -594,6 +644,35 @@ button { font-family: var(--font-body); cursor: pointer; }
 .burger-item-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
 .burger-item-row .burger-item { flex: 1; }
 .burger-item-disabled { opacity: 0.5; cursor: not-allowed; }
+
+.burger-theme-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: default;
+}
+.burger-theme-label {
+  padding: 0;
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.theme-select {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm, 8px);
+  border: 2px solid var(--line);
+  background: var(--cream);
+  color: var(--ink);
+  cursor: pointer;
+}
+.theme-select:hover { border-color: var(--blueberry); }
 
 /* <button> réutilisant le style de .burger-item, sans les à-plats par défaut du navigateur */
 .burger-item-btn {
