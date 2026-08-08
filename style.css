@@ -65,6 +65,14 @@
   --coconut-tint: color-mix(in srgb, var(--coconut) 16%, var(--cream));
   --coconut-ink: var(--coconut-dark);
 
+  /* Accent structurel (liens, surbrillances, boutons) — suit le thème.
+     Par défaut il pointe vers blueberry ; chaque thème peut le rediriger
+     vers le parfum qui lui va le mieux. */
+  --accent: var(--blueberry);
+  --accent-dark: var(--blueberry-dark);
+  --accent-ink: var(--blueberry-ink);
+  --accent-tint: var(--blueberry-tint);
+
   --radius-lg: 26px;
   --radius-md: 18px;
   --radius-sm: 12px;
@@ -77,8 +85,10 @@
 
 /* =========================================================
    Thèmes visuels — chaque thème ne surcharge que les tokens
-   de fond/surface/texte ; les couleurs "parfum" (catégories)
-   restent identiques pour garder les repères visuels.
+   de fond/surface/texte, les couleurs "parfum" (catégories)
+   et l'accent structurel (--accent-*, utilisé pour les liens,
+   surbrillances, tableaux...) qui suit désormais la dominante
+   du thème plutôt que de rester bleu partout.
    ========================================================= */
 
 /* ---------- Netherite ---------- */
@@ -114,6 +124,11 @@
   --ink-soft: #9fd9c3;
   --line: #1b5245;
   --panel-dark: #031a15;
+
+  --accent: var(--pistachio);
+  --accent-dark: var(--pistachio-dark);
+  --accent-ink: var(--pistachio-ink);
+  --accent-tint: var(--pistachio-tint);
 
   --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
   --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
@@ -161,6 +176,11 @@
   --line: #5d2419;
   --panel-dark: #170603;
 
+  --accent: var(--cherry);
+  --accent-dark: var(--cherry-dark);
+  --accent-ink: var(--cherry-ink);
+  --accent-tint: var(--cherry-tint);
+
   --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
   --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
   --pistachio-ink: color-mix(in srgb, var(--pistachio) 60%, white);
@@ -173,16 +193,21 @@
   --coconut-ink: color-mix(in srgb, var(--coconut) 60%, white);
 }
 
-/* ---------- Obsidian (violet-noir profond) ---------- */
+/* ---------- Obsidian (noir / gris très foncé, écritures blanches) ---------- */
 :root[data-theme="obsidian"] {
-  --bg-top: #170a21;
-  --bg-bottom: #0b0512;
-  --cream: #1e0f2b;
-  --cream-dim: #170b21;
-  --ink: #ece2fb;
-  --ink-soft: #a68fc9;
-  --line: #392353;
-  --panel-dark: #050208;
+  --bg-top: #0d0b12;
+  --bg-bottom: #050408;
+  --cream: #121016;
+  --cream-dim: #0c0a0f;
+  --ink: #ffffff;
+  --ink-soft: #b7b2bf;
+  --line: #2a2732;
+  --panel-dark: #020103;
+
+  --accent: var(--grape);
+  --accent-dark: var(--grape-dark);
+  --accent-ink: var(--grape-ink);
+  --accent-tint: var(--grape-tint);
 
   --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
   --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
@@ -192,20 +217,25 @@
   --chocolate-ink: color-mix(in srgb, var(--chocolate) 60%, white);
   --strawberry-ink: color-mix(in srgb, var(--strawberry) 60%, white);
   --caramel-ink: color-mix(in srgb, var(--caramel) 60%, white);
-  --grape-ink: color-mix(in srgb, var(--grape) 60%, white);
+  --grape-ink: color-mix(in srgb, var(--grape) 65%, white);
   --coconut-ink: color-mix(in srgb, var(--coconut) 60%, white);
 }
 
-/* ---------- Gold (minerai d'or) ---------- */
+/* ---------- Gold (minerai d'or — jaune-doré saturé) ---------- */
 :root[data-theme="gold"] {
-  --bg-top: #3a2f0c;
-  --bg-bottom: #241d08;
-  --cream: #493c12;
-  --cream-dim: #362b0d;
-  --ink: #fff3d1;
-  --ink-soft: #d9c37e;
-  --line: #6b551c;
-  --panel-dark: #191405;
+  --bg-top: #4f3900;
+  --bg-bottom: #2e2000;
+  --cream: #5f4400;
+  --cream-dim: #472f00;
+  --ink: #fff4d6;
+  --ink-soft: #ffd558;
+  --line: #8f6a00;
+  --panel-dark: #1a1200;
+
+  --accent: var(--lemon);
+  --accent-dark: var(--lemon-dark);
+  --accent-ink: var(--lemon-ink);
+  --accent-tint: var(--lemon-tint);
 
   --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
   --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
@@ -219,16 +249,21 @@
   --coconut-ink: color-mix(in srgb, var(--coconut) 60%, white);
 }
 
-/* ---------- Copper (minerai de cuivre) ---------- */
+/* ---------- Copper (minerai de cuivre — bichromatique cuivre/oxydation) ---------- */
 :root[data-theme="copper"] {
-  --bg-top: #3d2013;
-  --bg-bottom: #24120a;
-  --cream: #4a2818;
-  --cream-dim: #391f12;
-  --ink: #ffe3cf;
-  --ink-soft: #dba989;
-  --line: #6b3a22;
-  --panel-dark: #190d07;
+  --bg-top: #4a2a15;
+  --bg-bottom: #0f322c;
+  --cream: #3f2416;
+  --cream-dim: #342012;
+  --ink: #ffe8d0;
+  --ink-soft: #9fd8c5;
+  --line: #2a6b5c;
+  --panel-dark: #06120f;
+
+  --accent: var(--mint);
+  --accent-dark: var(--mint-dark);
+  --accent-ink: var(--mint-ink);
+  --accent-tint: var(--mint-tint);
 
   --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
   --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
@@ -253,6 +288,11 @@
   --line: #1c5866;
   --panel-dark: #03151a;
 
+  --accent: var(--coconut);
+  --accent-dark: var(--coconut-dark);
+  --accent-ink: var(--coconut-ink);
+  --accent-tint: var(--coconut-tint);
+
   --blueberry-ink: color-mix(in srgb, var(--blueberry) 60%, white);
   --cherry-ink: color-mix(in srgb, var(--cherry) 60%, white);
   --pistachio-ink: color-mix(in srgb, var(--pistachio) 60%, white);
@@ -262,7 +302,7 @@
   --strawberry-ink: color-mix(in srgb, var(--strawberry) 60%, white);
   --caramel-ink: color-mix(in srgb, var(--caramel) 60%, white);
   --grape-ink: color-mix(in srgb, var(--grape) 60%, white);
-  --coconut-ink: color-mix(in srgb, var(--coconut) 60%, white);
+  --coconut-ink: color-mix(in srgb, var(--coconut) 65%, white);
 }
 
 * { box-sizing: border-box; }
@@ -294,7 +334,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   opacity: 0.35;
 }
 .drip-a { width: 340px; height: 340px; top: -120px; right: -80px; background: radial-gradient(circle at 30% 30%, var(--cherry-tint), transparent 70%); }
-.drip-b { width: 420px; height: 420px; bottom: -160px; left: -140px; background: radial-gradient(circle at 40% 40%, var(--blueberry-tint), transparent 70%); }
+.drip-b { width: 420px; height: 420px; bottom: -160px; left: -140px; background: radial-gradient(circle at 40% 40%, var(--accent-tint), transparent 70%); }
 .drip-c { width: 260px; height: 260px; top: 40%; right: 8%; background: radial-gradient(circle at 50% 50%, var(--lemon-tint), transparent 70%); opacity: 0.4; }
 
 /* ---------- Header / hero ---------- */
@@ -350,11 +390,11 @@ button { font-family: var(--font-body); cursor: pointer; }
 .btn-ghost:hover { box-shadow: var(--shadow-soft); }
 .btn-ghost.unlocked { background: var(--pistachio-tint); border-color: var(--pistachio); color: var(--pistachio-ink); }
 .btn-primary {
-  background: var(--blueberry);
+  background: var(--accent);
   color: white;
   box-shadow: 0 8px 18px -8px rgba(76, 110, 245, 0.65);
 }
-.btn-primary:hover { background: var(--blueberry-dark); }
+.btn-primary:hover { background: var(--accent-dark); }
 .btn-danger { background: var(--cherry); color: white; }
 .btn-danger:hover { background: var(--cherry-dark); }
 .btn-dashed {
@@ -447,12 +487,12 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-size: 13.5px;
   padding: 6px 10px;
   border-radius: var(--radius-sm, 8px);
-  border: 2px solid var(--blueberry-tint);
+  border: 2px solid var(--accent-tint);
   background: var(--cream);
   color: var(--ink);
   cursor: pointer;
 }
-.grid-cols-select:hover { border-color: var(--blueberry); }
+.grid-cols-select:hover { border-color: var(--accent); }
 .grid-cols-row[hidden] { display: none; }
 
 /* ---------- Categories ---------- */
@@ -466,9 +506,9 @@ button { font-family: var(--font-body); cursor: pointer; }
 }
 
 .category {
-  --flavor: var(--blueberry);
-  --flavor-dark: var(--blueberry-ink);
-  --flavor-tint: var(--blueberry-tint);
+  --flavor: var(--accent);
+  --flavor-dark: var(--accent-ink);
+  --flavor-tint: var(--accent-tint);
 }
 .category.flavor-cherry     { --flavor: var(--cherry);     --flavor-dark: var(--cherry-ink);     --flavor-tint: var(--cherry-tint); }
 .category.flavor-pistachio  { --flavor: var(--pistachio);  --flavor-dark: var(--pistachio-ink);  --flavor-tint: var(--pistachio-tint); }
@@ -705,7 +745,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   background: var(--cream-dim);
   margin-top: 6px;
 }
-.modal input:focus { outline: none; border-color: var(--blueberry); }
+.modal input:focus { outline: none; border-color: var(--accent); }
 .modal-textarea {
   width: 100%;
   border: 2px solid var(--line);
@@ -718,7 +758,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   resize: vertical;
   min-height: 64px;
 }
-.modal-textarea:focus { outline: none; border-color: var(--blueberry); }
+.modal-textarea:focus { outline: none; border-color: var(--accent); }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 .modal-error {
   color: var(--cherry-ink);
@@ -794,7 +834,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-weight: 800;
   font-size: 14px;
 }
-.burger-item:hover { background: var(--blueberry-tint); }
+.burger-item:hover { background: var(--accent-tint); }
 .burger-item-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
 .burger-item-row .burger-item { flex: 1; }
 .burger-item-disabled { opacity: 0.5; cursor: not-allowed; }
@@ -826,7 +866,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   color: var(--ink);
   cursor: pointer;
 }
-.theme-select:hover { border-color: var(--blueberry); }
+.theme-select:hover { border-color: var(--accent); }
 
 /* <button> réutilisant le style de .burger-item, sans les à-plats par défaut du navigateur */
 .burger-item-btn {
@@ -838,7 +878,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   font-family: inherit;
 }
 .burger-item-btn.unlocked { background: var(--pistachio-tint); color: var(--pistachio-ink); }
-.burger-nav.is-current { background: var(--blueberry-tint); }
+.burger-nav.is-current { background: var(--accent-tint); }
 .burger-sep { border: none; border-top: 2px solid var(--line); margin: 6px 4px; }
 
 /* ---------- Pages (Accueil / Twitch / Participants / Stats) ---------- */
@@ -963,15 +1003,15 @@ button { font-family: var(--font-body); cursor: pointer; }
 .participant-name { font-family: var(--font-display); font-weight: 700; font-size: 17px; }
 .participant-links { display: flex; flex-wrap: wrap; gap: 6px; }
 .participant-link-btn {
-  background: var(--blueberry-tint);
-  color: var(--blueberry-ink);
+  background: var(--accent-tint);
+  color: var(--accent-ink);
   font-weight: 800;
   font-size: 12px;
   padding: 5px 10px;
   border-radius: 999px;
   text-decoration: none;
 }
-.participant-link-btn:hover { background: var(--blueberry); color: white; }
+.participant-link-btn:hover { background: var(--accent); color: white; }
 .participant-edit-actions { display: flex; justify-content: flex-end; gap: 4px; margin-top: -4px; }
 
 /* Participants sans chaîne Twitch : ligne pleine largeur, contenu centré,
@@ -1007,8 +1047,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 .stats-table-secondary { margin-top: 20px; }
 .stats-table th, .stats-table td { padding: 12px 14px; text-align: left; font-size: 13.5px; }
 .stats-table th {
-  background: var(--blueberry-tint);
-  color: var(--blueberry-ink);
+  background: var(--accent-tint);
+  color: var(--accent-ink);
   font-weight: 800;
   font-size: 12px;
   text-transform: uppercase;
@@ -1049,8 +1089,8 @@ button { font-family: var(--font-body); cursor: pointer; }
   width: 76px;
   height: 76px;
   border-radius: 50%;
-  background: var(--blueberry-tint);
-  color: var(--blueberry-ink);
+  background: var(--accent-tint);
+  color: var(--accent-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1060,8 +1100,8 @@ button { font-family: var(--font-body); cursor: pointer; }
 .thanks-name { font-family: var(--font-display); font-weight: 700; font-size: 17px; }
 .thanks-desc { color: var(--ink-soft); font-size: 13.5px; font-weight: 600; line-height: 1.4; }
 .thanks-link {
-  background: var(--blueberry-tint);
-  color: var(--blueberry-ink);
+  background: var(--accent-tint);
+  color: var(--accent-ink);
   font-weight: 800;
   font-size: 12px;
   padding: 6px 12px;
@@ -1069,7 +1109,7 @@ button { font-family: var(--font-body); cursor: pointer; }
   text-decoration: none;
   margin-top: 2px;
 }
-.thanks-link:hover { background: var(--blueberry); color: white; }
+.thanks-link:hover { background: var(--accent); color: white; }
 .thanks-links-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 2px; }
 .thanks-edit-actions { display: flex; justify-content: center; gap: 4px; margin-top: 2px; }
 
@@ -1178,11 +1218,11 @@ button { font-family: var(--font-body); cursor: pointer; }
   padding: 7px;
   font-size: 12px;
   font-weight: 800;
-  background: var(--blueberry-tint);
-  color: var(--blueberry-ink);
+  background: var(--accent-tint);
+  color: var(--accent-ink);
   text-decoration: none;
 }
-.mini-twitch-visit:hover { background: var(--blueberry); color: white; }
+.mini-twitch-visit:hover { background: var(--accent); color: white; }
 
 .mini-twitch-reopen {
   position: fixed;
@@ -1258,6 +1298,6 @@ button { font-family: var(--font-body); cursor: pointer; }
 
 /* ---------- Focus visibility ---------- */
 a:focus-visible, button:focus-visible, input:focus-visible {
-  outline: 3px solid var(--blueberry);
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
